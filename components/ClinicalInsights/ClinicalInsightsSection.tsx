@@ -17,7 +17,7 @@ export default function ClinicalInsightsSection() {
   const [selectedMetric, setSelectedMetric] = useState<"stress" | "focus" | "coherence">("stress");
 
   return (
-    <section id="clinical-insights" className="py-28 bg-[#fbfbfd] border-t border-slate-200/70">
+    <section id="clinical-insights" className="py-28 bg-[#ebebed] border-t border-slate-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl mb-16">

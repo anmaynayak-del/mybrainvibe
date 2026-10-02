@@ -43,7 +43,7 @@ export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
     <div
       ref={containerRef}
       id="hero"
-      className="relative w-full h-[320vh] bg-[#fbfbfd]"
+      className="relative w-full h-[320vh] bg-[#ebebed]"
     >
       {/* Sticky 100vh Viewport */}
       <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center medical-grid-bg">

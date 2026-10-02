@@ -69,7 +69,7 @@ export default function TechnologySection() {
           {steps.map((step) => (
             <div
               key={step.num}
-              className="bg-[#fbfbfd] p-6 sm:p-7 rounded-2xl border border-slate-200/80 hover:border-teal-300 hover:shadow-lg hover:shadow-teal-900/5 transition-all duration-300 flex flex-col justify-between group"
+              className="bg-[#ebebed] p-6 sm:p-7 rounded-2xl border border-slate-200/80 hover:border-teal-300 hover:shadow-lg hover:shadow-teal-900/5 transition-all duration-300 flex flex-col justify-between group"
             >
               <div>
                 <div className="flex items-center justify-between mb-4">

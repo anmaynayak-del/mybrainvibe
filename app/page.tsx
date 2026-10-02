@@ -15,7 +15,7 @@ export default function Home() {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
 
   return (
-    <main className="relative min-h-screen bg-[#fbfbfd] text-slate-900 font-sans selection:bg-teal-600 selection:text-white">
+    <main className="relative min-h-screen bg-[#ebebed] text-slate-900 font-sans selection:bg-teal-600 selection:text-white">
       {/* Navigation */}
       <Navbar onOpenBooking={() => setBookingModalOpen(true)} />
 

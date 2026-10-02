@@ -84,7 +84,7 @@ export default function WhatWeDoSection() {
             return (
               <div
                 key={feature.id}
-                className="group relative bg-[#fbfbfd] hover:bg-white rounded-2xl p-8 border border-slate-200/70 hover:border-teal-300 shadow-xs hover:shadow-xl hover:shadow-teal-900/5 transition-all duration-300"
+                className="group relative bg-[#ebebed] hover:bg-white rounded-2xl p-8 border border-slate-200/70 hover:border-teal-300 shadow-xs hover:shadow-xl hover:shadow-teal-900/5 transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-teal-600 group-hover:text-white text-teal-700 flex items-center justify-center transition-all duration-300 shadow-xs">

@@ -59,14 +59,15 @@ export default function CanvasSequence({
     };
   }, [onLoadProgress]);
 
-  // 2. Update target frame on scroll progress change
+  // 2. Update target frame DIRECTLY on scroll — zero lag, instant response
   useEffect(() => {
-    const rawIndex = scrollProgress * (TOTAL_FRAMES - 1);
-    const clamped = Math.max(0, Math.min(TOTAL_FRAMES - 1, rawIndex));
+    const exactFrame = scrollProgress * (TOTAL_FRAMES - 1);
+    const clamped = Math.max(0, Math.min(TOTAL_FRAMES - 1, exactFrame));
     targetFrameRef.current = clamped;
+    currentFrameRef.current = clamped;
   }, [scrollProgress]);
 
-  // 3. Render loop with sub-frame lerping for silk-smooth cinematic movement
+  // 3. Render loop — no lerp lag, crossfade between adjacent frames for buttery smoothness
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -74,24 +75,20 @@ export default function CanvasSequence({
     if (!ctx) return;
 
     const render = () => {
-      // Smooth lerp towards target frame
-      const diff = targetFrameRef.current - currentFrameRef.current;
-      if (Math.abs(diff) > 0.001) {
-        currentFrameRef.current += diff * 0.18; // smooth interpolation factor
-      } else {
-        currentFrameRef.current = targetFrameRef.current;
-      }
+      const exactFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, currentFrameRef.current));
+      const frameIndex1 = Math.floor(exactFrame);
+      const frameIndex2 = Math.min(TOTAL_FRAMES - 1, frameIndex1 + 1);
+      // Fractional blend between the two adjacent frames for silky sub-frame smoothness
+      const blend = exactFrame - frameIndex1;
 
-      const frameIndex = Math.round(
-        Math.max(0, Math.min(TOTAL_FRAMES - 1, currentFrameRef.current))
-      );
+      const img1 = imagesRef.current[frameIndex1];
+      const img2 = imagesRef.current[frameIndex2];
 
-      const img = imagesRef.current[frameIndex];
-      if (img && img.complete && img.naturalWidth > 0) {
+      if (img1 && img1.complete && img1.naturalWidth > 0) {
         const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
         const rect = canvas.getBoundingClientRect();
-        
-        // Ensure canvas internal resolution matches display size * DPR
+
+        // Ensure canvas internal resolution matches display size × DPR
         const targetWidth = Math.floor(rect.width * dpr);
         const targetHeight = Math.floor(rect.height * dpr);
 
@@ -100,35 +97,41 @@ export default function CanvasSequence({
           canvas.height = targetHeight;
         }
 
-        // Fill clean background matching the pristine studio backdrop of the frames
-        ctx.fillStyle = "#fbfbfd";
+        // Fill background matching the site colour palette
+        ctx.fillStyle = "#ebebed";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Aspect ratio calculation - contain with slight upscale for immersive focus
-        const imgRatio = img.naturalWidth / img.naturalHeight;
+        // Centered-contain: model fully visible, background shows at edges
+        const imgRatio = img1.naturalWidth / img1.naturalHeight;
         const canvasRatio = canvas.width / canvas.height;
 
         let drawWidth: number;
         let drawHeight: number;
-        let offsetX: number;
-        let offsetY: number;
 
         if (canvasRatio > imgRatio) {
-          // Canvas is wider than image
-          drawHeight = canvas.height * 0.96;
+          // Canvas wider → fit by height
+          drawHeight = canvas.height * 0.92;
           drawWidth = drawHeight * imgRatio;
-          offsetX = (canvas.width - drawWidth) / 2;
-          offsetY = (canvas.height - drawHeight) / 2;
         } else {
-          // Canvas is taller than image (e.g. mobile/portrait)
-          drawWidth = canvas.width * 0.96;
+          // Canvas taller → fit by width
+          drawWidth = canvas.width * 0.92;
           drawHeight = drawWidth / imgRatio;
-          offsetX = (canvas.width - drawWidth) / 2;
-          offsetY = (canvas.height - drawHeight) / 2;
         }
 
-        // Draw image onto canvas
-        ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        const offsetX = (canvas.width - drawWidth) / 2;
+        const offsetY = (canvas.height - drawHeight) / 2;
+
+        // --- Draw frame 1 ---
+        ctx.globalAlpha = 1.0;
+        ctx.drawImage(img1, offsetX, offsetY, drawWidth, drawHeight);
+
+        // --- Crossfade to frame 2 for sub-frame silkiness ---
+        if (blend > 0 && img2 && img2.complete && img2.naturalWidth > 0) {
+          ctx.globalAlpha = blend;
+          ctx.drawImage(img2, offsetX, offsetY, drawWidth, drawHeight);
+          ctx.globalAlpha = 1.0;
+        }
+
       }
 
       requestRef.current = requestAnimationFrame(render);
