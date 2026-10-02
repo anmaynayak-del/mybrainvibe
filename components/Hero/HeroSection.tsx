@@ -13,7 +13,9 @@ export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
   const [scrollProgress, setScrollProgress] = useState<number>(0);
 
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const updateScroll = () => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
       const totalScrollable = rect.height - window.innerHeight;
@@ -22,10 +24,18 @@ export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
       const progress = -rect.top / totalScrollable;
       const clamped = Math.max(0, Math.min(1, progress));
       setScrollProgress(clamped);
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateScroll);
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
+    updateScroll();
 
     return () => {
       window.removeEventListener("scroll", handleScroll);

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { HERO_FRAMES, TOTAL_FRAMES } from "@/lib/frames";
 
 interface CanvasSequenceProps {
@@ -8,67 +8,169 @@ interface CanvasSequenceProps {
   onLoadProgress?: (progress: number) => void;
 }
 
+interface LayoutMetrics {
+  width: number;
+  height: number;
+  drawWidth: number;
+  drawHeight: number;
+  offsetX: number;
+  offsetY: number;
+}
+
 export default function CanvasSequence({
   scrollProgress,
   onLoadProgress,
 }: CanvasSequenceProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
   const currentFrameRef = useRef<number>(0);
   const targetFrameRef = useRef<number>(0);
+  const lastRenderedFrameRef = useRef<number>(-1);
   const requestRef = useRef<number | null>(null);
+  const layoutRef = useRef<LayoutMetrics>({
+    width: 0,
+    height: 0,
+    drawWidth: 0,
+    drawHeight: 0,
+    offsetX: 0,
+    offsetY: 0,
+  });
+
   const [loadedCount, setLoadedCount] = useState<number>(0);
   const [isReady, setIsReady] = useState<boolean>(false);
 
-  // 1. Efficient concurrent image preloading with immediate first-frame readiness
+  // 1. Cached layout calculation — ZERO getBoundingClientRect() calls inside requestAnimationFrame
+  const updateLayout = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    const rect = canvas.getBoundingClientRect();
+    const targetWidth = Math.max(1, Math.floor(rect.width * dpr));
+    const targetHeight = Math.max(1, Math.floor(rect.height * dpr));
+
+    if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+      canvas.width = targetWidth;
+      canvas.height = targetHeight;
+    }
+
+    const imgRatio = 16 / 9; // 1920x1080 native frame aspect ratio
+    const canvasRatio = targetWidth / targetHeight;
+
+    let drawWidth: number;
+    let drawHeight: number;
+
+    if (canvasRatio > imgRatio) {
+      drawHeight = targetHeight;
+      drawWidth = drawHeight * imgRatio;
+    } else {
+      drawWidth = targetWidth;
+      drawHeight = drawWidth / imgRatio;
+    }
+
+    const offsetX = (targetWidth - drawWidth) / 2;
+    const offsetY = (targetHeight - drawHeight) / 2;
+
+    layoutRef.current = {
+      width: targetWidth,
+      height: targetHeight,
+      drawWidth,
+      drawHeight,
+      offsetX,
+      offsetY,
+    };
+
+    // Force redraw on resize
+    lastRenderedFrameRef.current = -1;
+  }, []);
+
+  useEffect(() => {
+    updateLayout();
+    window.addEventListener("resize", updateLayout, { passive: true });
+    return () => {
+      window.removeEventListener("resize", updateLayout);
+    };
+  }, [updateLayout]);
+
+  // 2. High-performance interleaved preloader with off-thread asynchronous decoding
   useEffect(() => {
     let isCancelled = false;
-    const loadedImages: HTMLImageElement[] = new Array(TOTAL_FRAMES);
-    imagesRef.current = loadedImages;
     let loaded = 0;
 
-    HERO_FRAMES.forEach((src, index) => {
+    // Interleaved order: keyframes across the 360 rotation load first
+    // This guarantees the middle (frames 30-80) never has missing frames or lag
+    const order: number[] = [];
+    const step = 4;
+
+    // Pass 1: Every 4th frame across the entire turntable
+    for (let i = 0; i < TOTAL_FRAMES; i += step) {
+      order.push(i);
+    }
+    // Pass 2: Halfway between keyframes
+    for (let i = 2; i < TOTAL_FRAMES; i += step) {
+      if (!order.includes(i)) order.push(i);
+    }
+    // Pass 3: All remaining intermediate frames
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      if (!order.includes(i)) order.push(i);
+    }
+
+    const loadFrame = async (index: number) => {
+      if (isCancelled) return;
+      const src = HERO_FRAMES[index];
       const img = new Image();
+      img.decoding = "async";
       img.src = src;
-      img.onload = () => {
-        if (isCancelled) return;
-        loadedImages[index] = img;
-        loaded++;
-        setLoadedCount(loaded);
 
-        if (onLoadProgress) {
-          onLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
+      try {
+        if ("decode" in img) {
+          await img.decode();
         }
+      } catch {
+        // Fallback for decode rejection
+      }
 
-        // Show immediately once initial key frames are ready
-        if (index === 0 || loaded >= 5) {
-          setIsReady(true);
-        }
-      };
+      if (isCancelled) return;
+      imagesRef.current[index] = img;
+      loaded++;
+      setLoadedCount(loaded);
 
-      img.onerror = () => {
-        if (isCancelled) return;
-        loaded++;
-        setLoadedCount(loaded);
-        if (index === 0 || loaded >= 5) {
-          setIsReady(true);
-        }
-      };
-    });
+      if (onLoadProgress) {
+        onLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
+      }
+
+      if (index === 0 || loaded >= 4) {
+        setIsReady(true);
+      }
+    };
+
+    // Parallel batches with concurrency pool
+    const CONCURRENCY = 6;
+    let activeIndex = 0;
+
+    const worker = async () => {
+      while (activeIndex < order.length && !isCancelled) {
+        const nextIdx = order[activeIndex++];
+        await loadFrame(nextIdx);
+      }
+    };
+
+    const pool = Array.from({ length: CONCURRENCY }, () => worker());
+    Promise.all(pool);
 
     return () => {
       isCancelled = true;
     };
   }, [onLoadProgress]);
 
-  // 2. Direct mapping from scroll progress to target frame
+  // 3. Smooth scroll progress mapping to target frame
   useEffect(() => {
     const exactFrame = scrollProgress * (TOTAL_FRAMES - 1);
     const clamped = Math.max(0, Math.min(TOTAL_FRAMES - 1, exactFrame));
     targetFrameRef.current = clamped;
   }, [scrollProgress]);
 
-  // 3. Fluid 60fps render loop with inertial damping and sub-frame cross-fading
+  // 4. Ultra-smooth 60fps render loop with zero layout thrashing
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -76,81 +178,60 @@ export default function CanvasSequence({
     if (!ctx) return;
 
     const render = () => {
-      // Smooth inertial interpolation towards target frame for silky 60fps turntable physics
+      // Smooth inertial interpolation
       const diff = targetFrameRef.current - currentFrameRef.current;
       if (Math.abs(diff) > 0.0005) {
-        currentFrameRef.current += diff * 0.14; // Smooth damping
+        currentFrameRef.current += diff * 0.16; // Perfectly responsive 60fps damping
       } else {
         currentFrameRef.current = targetFrameRef.current;
       }
 
       const exactFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, currentFrameRef.current));
-      const frameIndex1 = Math.floor(exactFrame);
-      const frameIndex2 = Math.min(TOTAL_FRAMES - 1, frameIndex1 + 1);
-      const blend = exactFrame - frameIndex1;
+      const frameDelta = Math.abs(exactFrame - lastRenderedFrameRef.current);
 
-      // Find primary frame or nearest available loaded frame
-      let img1 = imagesRef.current[frameIndex1];
-      if (!img1 || !img1.complete || img1.naturalWidth === 0) {
-        for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
-          const prev = imagesRef.current[frameIndex1 - offset];
-          if (prev && prev.complete && prev.naturalWidth > 0) {
-            img1 = prev;
-            break;
+      // Only draw when the frame position actually moves or on initial draw
+      if (frameDelta > 0.001 || lastRenderedFrameRef.current === -1) {
+        lastRenderedFrameRef.current = exactFrame;
+
+        const frameIndex1 = Math.floor(exactFrame);
+        const frameIndex2 = Math.min(TOTAL_FRAMES - 1, frameIndex1 + 1);
+        const blend = exactFrame - frameIndex1;
+
+        // Resolve primary frame or nearest loaded neighbor
+        let img1 = imagesRef.current[frameIndex1];
+        if (!img1 || !img1.complete || img1.naturalWidth === 0) {
+          for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+            const prev = imagesRef.current[frameIndex1 - offset];
+            if (prev && prev.complete && prev.naturalWidth > 0) {
+              img1 = prev;
+              break;
+            }
+            const next = imagesRef.current[frameIndex1 + offset];
+            if (next && next.complete && next.naturalWidth > 0) {
+              img1 = next;
+              break;
+            }
           }
-          const next = imagesRef.current[frameIndex1 + offset];
-          if (next && next.complete && next.naturalWidth > 0) {
-            img1 = next;
-            break;
-          }
-        }
-      }
-
-      const img2 = imagesRef.current[frameIndex2];
-
-      if (img1 && img1.complete && img1.naturalWidth > 0) {
-        const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-        const rect = canvas.getBoundingClientRect();
-
-        const targetWidth = Math.floor(rect.width * dpr);
-        const targetHeight = Math.floor(rect.height * dpr);
-
-        if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
-          canvas.width = targetWidth;
-          canvas.height = targetHeight;
         }
 
-        // Fill background matching frame perimeter (#cbcdcf)
-        ctx.fillStyle = "#cbcdcf";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        const img2 = imagesRef.current[frameIndex2];
+        const layout = layoutRef.current;
 
-        // Aspect-ratio contain to preserve full fidelity without cropping
-        const imgRatio = img1.naturalWidth / img1.naturalHeight;
-        const canvasRatio = canvas.width / canvas.height;
+        if (img1 && img1.complete && img1.naturalWidth > 0 && layout.width > 0) {
+          // Fill perimeter
+          ctx.fillStyle = "#cbcdcf";
+          ctx.fillRect(0, 0, layout.width, layout.height);
 
-        let drawWidth: number;
-        let drawHeight: number;
-
-        if (canvasRatio > imgRatio) {
-          drawHeight = canvas.height;
-          drawWidth = drawHeight * imgRatio;
-        } else {
-          drawWidth = canvas.width;
-          drawHeight = drawWidth / imgRatio;
-        }
-
-        const offsetX = (canvas.width - drawWidth) / 2;
-        const offsetY = (canvas.height - drawHeight) / 2;
-
-        // Draw primary frame
-        ctx.globalAlpha = 1.0;
-        ctx.drawImage(img1, offsetX, offsetY, drawWidth, drawHeight);
-
-        // Sub-frame cross-fading for buttery smoothness between frames
-        if (blend > 0 && img2 && img2.complete && img2.naturalWidth > 0) {
-          ctx.globalAlpha = blend;
-          ctx.drawImage(img2, offsetX, offsetY, drawWidth, drawHeight);
+          // Draw primary frame
           ctx.globalAlpha = 1.0;
+          ctx.drawImage(img1, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+
+          // Sub-frame cross-fading for buttery transition
+          if (blend > 0.02 && img2 && img2.complete && img2.naturalWidth > 0) {
+            ctx.globalAlpha = blend;
+            ctx.drawImage(img2, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+            ctx.globalAlpha = 1.0;
+          }
         }
       }
 
@@ -170,7 +251,7 @@ export default function CanvasSequence({
     <div className="relative w-full h-full flex items-center justify-center select-none overflow-hidden">
       {/* Loading state indicator */}
       {!isReady && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-100/90 backdrop-blur-sm transition-opacity duration-500">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#cbcdcf]/90 backdrop-blur-sm transition-opacity duration-500">
           <div className="relative w-16 h-16 flex items-center justify-center mb-4">
             <div className="absolute inset-0 rounded-full border-2 border-teal-200 animate-ping opacity-30" />
             <div className="w-12 h-12 rounded-full border-3 border-teal-600 border-t-transparent animate-spin" />
@@ -178,13 +259,13 @@ export default function CanvasSequence({
           <p className="text-xs font-semibold tracking-wider text-slate-700 uppercase">
             Calibrating Neuro Spatial Model
           </p>
-          <div className="w-48 h-1.5 bg-slate-200 rounded-full mt-3 overflow-hidden">
+          <div className="w-48 h-1.5 bg-slate-300 rounded-full mt-3 overflow-hidden">
             <div
               className="h-full bg-teal-600 transition-all duration-200 ease-out"
               style={{ width: `${Math.round((loadedCount / TOTAL_FRAMES) * 100)}%` }}
             />
           </div>
-          <span className="text-[11px] font-mono text-slate-600 mt-1.5">
+          <span className="text-[11px] font-mono text-slate-700 mt-1.5">
             {Math.round((loadedCount / TOTAL_FRAMES) * 100)}%
           </span>
         </div>
@@ -193,7 +274,7 @@ export default function CanvasSequence({
       {/* Main High-Performance Canvas */}
       <canvas
         ref={canvasRef}
-        className="w-full h-full object-contain block pointer-events-none transition-opacity duration-700 ease-out"
+        className="w-full h-full object-contain block pointer-events-none transition-opacity duration-500 ease-out"
         style={{ opacity: isReady ? 1 : 0 }}
       />
     </div>

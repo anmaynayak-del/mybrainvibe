@@ -62,12 +62,13 @@ body {
   background: radial-gradient(circle at 50% 40%, rgba(13, 148, 136, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
 }
 
-/* Soft glass effect */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  will-change: transform, opacity;
 }
 
 .glass-panel-dark {
