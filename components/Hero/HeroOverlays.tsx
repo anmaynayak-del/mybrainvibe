@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ArrowDown, Sparkles, Activity, Cpu, ShieldCheck, Waves } from "lucide-react";
+import { ArrowDown, Cpu, Activity, ShieldCheck, Sparkles } from "lucide-react";
 
 interface HeroOverlaysProps {
   scrollProgress: number; // 0.0 to 1.0
@@ -15,21 +15,27 @@ export default function HeroOverlays({
   onBookClick,
 }: HeroOverlaysProps) {
   // Phase calculations with smooth easing bounds
-  // Phase 1: Intro headline & CTA (Active 0.0 -> 0.28)
-  const introOpacity = Math.max(0, Math.min(1, (0.22 - scrollProgress) / 0.12));
+  // Phase 1: Intro headline & CTA (Active 0.0 -> 0.24)
+  const introOpacity = Math.max(0, Math.min(1, (0.20 - scrollProgress) / 0.12));
   const introTranslateY = Math.min(60, scrollProgress * 150);
 
-  // Phase 2: Feature Callouts as device turns profile (Active 0.28 -> 0.70)
+  // Phase 2: Feature Callouts as device turns profile (Active 0.24 -> 0.68)
   const featureOpacity =
-    scrollProgress >= 0.22 && scrollProgress <= 0.72
-      ? Math.sin(((scrollProgress - 0.22) / 0.5) * Math.PI)
+    scrollProgress >= 0.22 && scrollProgress <= 0.68
+      ? Math.sin(((scrollProgress - 0.22) / 0.46) * Math.PI)
       : 0;
 
-  // Phase 3: Clinical summary before transition (Active 0.72 -> 0.98)
+  // Phase 3: Clinical summary before transition (Active 0.68 -> 0.88)
   const summaryOpacity =
-    scrollProgress >= 0.72 && scrollProgress <= 0.98
-      ? Math.sin(((scrollProgress - 0.72) / 0.26) * Math.PI)
+    scrollProgress >= 0.68 && scrollProgress <= 0.88
+      ? Math.sin(((scrollProgress - 0.68) / 0.20) * Math.PI)
       : 0;
+
+  // Phase 4: Sequence Completed transition to next section (Active 0.89 -> 1.0)
+  const completeOpacity = Math.max(
+    0,
+    Math.min(1, (scrollProgress - 0.88) / 0.08)
+  );
 
   return (
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 sm:p-12 lg:p-16 max-w-7xl mx-auto">
@@ -119,13 +125,13 @@ export default function HeroOverlays({
 
       {/* 3. CLINICAL OUTCOME SUMMARY (Phase 3) */}
       <div
-        className="w-full flex flex-col items-center justify-center text-center my-auto transition-all duration-200"
+        className="w-full flex flex-col items-center justify-center text-center my-auto transition-all duration-200 pointer-events-none"
         style={{
           opacity: summaryOpacity,
           visibility: summaryOpacity > 0.01 ? "visible" : "hidden",
         }}
       >
-        <div className="glass-panel px-8 py-7 rounded-3xl max-w-xl shadow-xl shadow-teal-900/5 border border-white/90">
+        <div className="glass-panel px-8 py-7 rounded-3xl max-w-xl shadow-xl shadow-teal-900/5 border border-white/90 pointer-events-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-semibold mb-3">
             <ShieldCheck className="w-4 h-4 text-teal-600" />
             <span>Institutional Validation</span>
@@ -139,11 +145,40 @@ export default function HeroOverlays({
         </div>
       </div>
 
-      {/* Bottom Scroll Indicator */}
+      {/* 4. SEQUENCE COMPLETED / PROCEED TO NEXT SECTION (Phase 4) */}
       <div
-        className="w-full flex items-center justify-between pt-4 border-t border-slate-200/60 text-xs text-slate-500 font-medium transition-opacity duration-300"
+        className="w-full flex flex-col items-center justify-center text-center my-auto transition-all duration-300 pointer-events-none"
         style={{
-          opacity: Math.max(0, 1 - scrollProgress * 2.5),
+          opacity: completeOpacity,
+          visibility: completeOpacity > 0.01 ? "visible" : "hidden",
+        }}
+      >
+        <div className="glass-panel px-7 py-6 rounded-3xl max-w-md shadow-2xl shadow-teal-900/10 border border-white/95 pointer-events-auto">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-semibold mb-2.5">
+            <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+            <span>360° Anatomy Inspection Complete</span>
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-1.5">
+            Ready to Explore the Platform?
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-600 mb-5 leading-relaxed">
+            Scroll down or click below to discover clinical assessment workflows.
+          </p>
+          <button
+            onClick={onExploreClick}
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal-600 text-white font-medium text-xs sm:text-sm hover:bg-teal-700 transition-all duration-200 shadow-lg shadow-teal-600/30 hover:-translate-y-0.5 cursor-pointer"
+          >
+            <span>Proceed to What We Do</span>
+            <ArrowDown className="w-4 h-4 animate-bounce" />
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom Scroll Indicator (Active during intro) */}
+      <div
+        className="w-full flex items-center justify-between pt-4 border-t border-slate-300/60 text-xs text-slate-600 font-medium transition-opacity duration-300"
+        style={{
+          opacity: Math.max(0, 1 - scrollProgress * 3.0),
         }}
       >
         <div className="flex items-center gap-2">

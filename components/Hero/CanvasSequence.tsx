@@ -20,10 +20,11 @@ export default function CanvasSequence({
   const [loadedCount, setLoadedCount] = useState<number>(0);
   const [isReady, setIsReady] = useState<boolean>(false);
 
-  // 1. Preload all frames sequentially & efficiently
+  // 1. Efficient concurrent image preloading with immediate first-frame readiness
   useEffect(() => {
     let isCancelled = false;
     const loadedImages: HTMLImageElement[] = new Array(TOTAL_FRAMES);
+    imagesRef.current = loadedImages;
     let loaded = 0;
 
     HERO_FRAMES.forEach((src, index) => {
@@ -34,21 +35,22 @@ export default function CanvasSequence({
         loadedImages[index] = img;
         loaded++;
         setLoadedCount(loaded);
+
         if (onLoadProgress) {
           onLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
         }
-        if (loaded === TOTAL_FRAMES) {
-          imagesRef.current = loadedImages;
+
+        // Show immediately once initial key frames are ready
+        if (index === 0 || loaded >= 5) {
           setIsReady(true);
         }
       };
+
       img.onerror = () => {
         if (isCancelled) return;
-        // Fallback in case of individual load issue
         loaded++;
         setLoadedCount(loaded);
-        if (loaded === TOTAL_FRAMES) {
-          imagesRef.current = loadedImages;
+        if (index === 0 || loaded >= 5) {
           setIsReady(true);
         }
       };
@@ -59,15 +61,14 @@ export default function CanvasSequence({
     };
   }, [onLoadProgress]);
 
-  // 2. Update target frame DIRECTLY on scroll — zero lag, instant response
+  // 2. Direct mapping from scroll progress to target frame
   useEffect(() => {
     const exactFrame = scrollProgress * (TOTAL_FRAMES - 1);
     const clamped = Math.max(0, Math.min(TOTAL_FRAMES - 1, exactFrame));
     targetFrameRef.current = clamped;
-    currentFrameRef.current = clamped;
   }, [scrollProgress]);
 
-  // 3. Render loop — no lerp lag, crossfade between adjacent frames for buttery smoothness
+  // 3. Fluid 60fps render loop with inertial damping and sub-frame cross-fading
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -75,20 +76,42 @@ export default function CanvasSequence({
     if (!ctx) return;
 
     const render = () => {
+      // Smooth inertial interpolation towards target frame for silky 60fps turntable physics
+      const diff = targetFrameRef.current - currentFrameRef.current;
+      if (Math.abs(diff) > 0.0005) {
+        currentFrameRef.current += diff * 0.14; // Smooth damping
+      } else {
+        currentFrameRef.current = targetFrameRef.current;
+      }
+
       const exactFrame = Math.max(0, Math.min(TOTAL_FRAMES - 1, currentFrameRef.current));
       const frameIndex1 = Math.floor(exactFrame);
       const frameIndex2 = Math.min(TOTAL_FRAMES - 1, frameIndex1 + 1);
-      // Fractional blend between the two adjacent frames for silky sub-frame smoothness
       const blend = exactFrame - frameIndex1;
 
-      const img1 = imagesRef.current[frameIndex1];
+      // Find primary frame or nearest available loaded frame
+      let img1 = imagesRef.current[frameIndex1];
+      if (!img1 || !img1.complete || img1.naturalWidth === 0) {
+        for (let offset = 1; offset < TOTAL_FRAMES; offset++) {
+          const prev = imagesRef.current[frameIndex1 - offset];
+          if (prev && prev.complete && prev.naturalWidth > 0) {
+            img1 = prev;
+            break;
+          }
+          const next = imagesRef.current[frameIndex1 + offset];
+          if (next && next.complete && next.naturalWidth > 0) {
+            img1 = next;
+            break;
+          }
+        }
+      }
+
       const img2 = imagesRef.current[frameIndex2];
 
       if (img1 && img1.complete && img1.naturalWidth > 0) {
         const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
         const rect = canvas.getBoundingClientRect();
 
-        // Ensure canvas internal resolution matches display size × DPR
         const targetWidth = Math.floor(rect.width * dpr);
         const targetHeight = Math.floor(rect.height * dpr);
 
@@ -97,11 +120,11 @@ export default function CanvasSequence({
           canvas.height = targetHeight;
         }
 
-        // Fill background matching the site colour palette
-        ctx.fillStyle = "#ebebed";
+        // Fill background matching frame perimeter (#cbcdcf)
+        ctx.fillStyle = "#cbcdcf";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Centered-contain: model fully visible, background shows at edges
+        // Aspect-ratio contain to preserve full fidelity without cropping
         const imgRatio = img1.naturalWidth / img1.naturalHeight;
         const canvasRatio = canvas.width / canvas.height;
 
@@ -109,29 +132,26 @@ export default function CanvasSequence({
         let drawHeight: number;
 
         if (canvasRatio > imgRatio) {
-          // Canvas wider → fit by height
-          drawHeight = canvas.height * 0.92;
+          drawHeight = canvas.height;
           drawWidth = drawHeight * imgRatio;
         } else {
-          // Canvas taller → fit by width
-          drawWidth = canvas.width * 0.92;
+          drawWidth = canvas.width;
           drawHeight = drawWidth / imgRatio;
         }
 
         const offsetX = (canvas.width - drawWidth) / 2;
         const offsetY = (canvas.height - drawHeight) / 2;
 
-        // --- Draw frame 1 ---
+        // Draw primary frame
         ctx.globalAlpha = 1.0;
         ctx.drawImage(img1, offsetX, offsetY, drawWidth, drawHeight);
 
-        // --- Crossfade to frame 2 for sub-frame silkiness ---
+        // Sub-frame cross-fading for buttery smoothness between frames
         if (blend > 0 && img2 && img2.complete && img2.naturalWidth > 0) {
           ctx.globalAlpha = blend;
           ctx.drawImage(img2, offsetX, offsetY, drawWidth, drawHeight);
           ctx.globalAlpha = 1.0;
         }
-
       }
 
       requestRef.current = requestAnimationFrame(render);
@@ -150,7 +170,7 @@ export default function CanvasSequence({
     <div className="relative w-full h-full flex items-center justify-center select-none overflow-hidden">
       {/* Loading state indicator */}
       {!isReady && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-50/90 backdrop-blur-sm transition-opacity duration-500">
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-100/90 backdrop-blur-sm transition-opacity duration-500">
           <div className="relative w-16 h-16 flex items-center justify-center mb-4">
             <div className="absolute inset-0 rounded-full border-2 border-teal-200 animate-ping opacity-30" />
             <div className="w-12 h-12 rounded-full border-3 border-teal-600 border-t-transparent animate-spin" />

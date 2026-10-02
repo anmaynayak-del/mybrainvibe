@@ -43,15 +43,15 @@ export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
     <div
       ref={containerRef}
       id="hero"
-      className="relative w-full h-[320vh] bg-[#ebebed]"
+      className="relative w-full h-[360vh] bg-[#cbcdcf]"
     >
       {/* Sticky 100vh Viewport */}
-      <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center medical-grid-bg">
+      <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">
         {/* Subtle radial lighting for Apple-like product studio ambiance */}
         <div className="absolute inset-0 radial-glow pointer-events-none" />
 
         {/* Scroll Progress Indicator Bar at Top */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-slate-100 z-30">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-slate-300/40 z-30">
           <div
             className="h-full bg-teal-600 transition-all duration-75 ease-out"
             style={{ width: `${scrollProgress * 100}%` }}
