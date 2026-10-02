@@ -1,11 +1,15 @@
 import Link from "next/link";
-import { Brain, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-[var(--background)]">
-      <div className="w-20 h-20 rounded-3xl bg-teal-500/10 text-teal-600 flex items-center justify-center mb-8 shadow-inner shadow-teal-500/20">
-        <Brain className="w-10 h-10 opacity-70" />
+      <div className="mb-10">
+        <img 
+          src="/logo.png" 
+          alt="BrainVibe Logo" 
+          className="h-16 sm:h-20 w-auto object-contain"
+        />
       </div>
       
       <h1 className="text-6xl sm:text-7xl font-black text-slate-900 tracking-tight mb-4">
@@ -23,7 +27,7 @@ export default function NotFound() {
         className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-teal-600 text-white font-semibold text-sm hover:bg-teal-700 transition-all shadow-lg shadow-teal-600/30 hover:-translate-y-0.5"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Return to Dashboard</span>
+        <span>Return to Homepage</span>
       </Link>
     </div>
   );
