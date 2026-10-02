@@ -13,7 +13,7 @@ export default function ClientLayout({ children, showFooter = true }: { children
   
   return (
     <BookingContext.Provider value={() => setBookingModalOpen(true)}>
-      <Navbar onOpenBooking={() => setBookingModalOpen(true)} />
+      <Navbar />
       {children}
       {showFooter && <Footer />}
       <AssessmentModal isOpen={bookingModalOpen} onClose={() => setBookingModalOpen(false)} />

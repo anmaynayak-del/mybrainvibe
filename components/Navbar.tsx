@@ -115,7 +115,7 @@ export default function Navbar() {
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  onOpenBooking();
+                  openBooking();
                 }}
                 className="w-full py-2.5 px-4 rounded-full text-center text-xs font-semibold bg-teal-600 text-white shadow-sm hover:bg-teal-700 transition-colors"
               >
