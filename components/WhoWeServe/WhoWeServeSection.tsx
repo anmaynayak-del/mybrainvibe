@@ -11,11 +11,10 @@ import {
   Check,
 } from "lucide-react";
 
-interface WhoWeServeProps {
-  onOpenBooking: () => void;
-}
+import { useBooking } from "@/components/BookingProvider";
 
-export default function WhoWeServeSection({ onOpenBooking }: WhoWeServeProps) {
+export default function WhoWeServeSection() {
+  const { openBooking } = useBooking();
   const [activeTab, setActiveTab] = useState(0);
 
   const personas = [
@@ -163,7 +162,7 @@ export default function WhoWeServeSection({ onOpenBooking }: WhoWeServeProps) {
               </p>
 
               <button
-                onClick={onOpenBooking}
+                onClick={openBooking}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal-600 text-white text-xs sm:text-sm font-semibold hover:bg-teal-700 shadow-md shadow-teal-600/20 hover:shadow-lg hover:shadow-teal-600/30 transition-all duration-200 cursor-pointer"
               >
                 <span>{personas[activeTab].cta}</span>

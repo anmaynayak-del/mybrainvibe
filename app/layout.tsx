@@ -29,6 +29,9 @@ export const metadata: Metadata = {
 };
 
 import OfflineIndicator from "@/components/OfflineIndicator";
+import SplashScreen from "@/components/SplashScreen";
+
+import { BookingProvider } from "@/components/BookingProvider";
 
 export default function RootLayout({
   children,
@@ -41,7 +44,10 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
     >
       <body className="min-h-full flex flex-col bg-[#ebebed] text-slate-900 selection:bg-teal-600 selection:text-white">
-        {children}
+        <SplashScreen />
+        <BookingProvider>
+          {children}
+        </BookingProvider>
         <OfflineIndicator />
       </body>
     </html>

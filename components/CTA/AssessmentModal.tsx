@@ -36,21 +36,23 @@ export default function AssessmentModal({ isOpen, onClose }: AssessmentModalProp
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 bg-slate-900 text-white">
+        <div className="flex items-center justify-between p-6 bg-white border-b border-slate-100 text-slate-900">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center border border-teal-500/30">
-              <Brain className="w-5 h-5 stroke-[2.2]" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold">Book Assessment</h3>
-              <p className="text-xs text-slate-400">
+            <img 
+              src="/logo.png" 
+              alt="BrainVibe Logo" 
+              className="h-8 w-auto object-contain"
+            />
+            <div className="border-l border-slate-200 pl-3">
+              <h3 className="text-base font-bold text-slate-800">Book Assessment</h3>
+              <p className="text-[11px] text-slate-500 font-medium">
                 Non-Invasive Brain &amp; Stress Mapping
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>

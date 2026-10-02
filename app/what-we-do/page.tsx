@@ -6,7 +6,7 @@ import WhatWeDoSection from "@/components/WhatWeDo/WhatWeDoSection";
 export default function WhatWeDo() {
   return (
     <div className="min-h-screen bg-[#ebebed]">
-      <Navbar onOpenBooking={() => {}} />
+      <Navbar  />
       <div className="pt-24">
         <WhatWeDoSection />
       </div>

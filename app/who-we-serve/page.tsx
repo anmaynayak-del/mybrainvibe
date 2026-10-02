@@ -6,9 +6,9 @@ import WhoWeServeSection from "@/components/WhoWeServe/WhoWeServeSection";
 export default function WhoWeServe() {
   return (
     <div className="min-h-screen bg-[#ebebed]">
-      <Navbar onOpenBooking={() => {}} />
+      <Navbar  />
       <div className="pt-24">
-        <WhoWeServeSection onOpenBooking={() => {}} />
+        <WhoWeServeSection  />
       </div>
       <Footer />
     </div>

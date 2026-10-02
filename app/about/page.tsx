@@ -6,7 +6,7 @@ import AboutSection from "@/components/About/AboutSection";
 export default function About() {
   return (
     <div className="min-h-screen bg-[#ebebed]">
-      <Navbar onOpenBooking={() => {}} />
+      <Navbar  />
       <div className="pt-24">
         <AboutSection />
       </div>

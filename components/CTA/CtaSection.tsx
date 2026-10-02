@@ -12,11 +12,10 @@ import {
   Brain,
 } from "lucide-react";
 
-interface CtaSectionProps {
-  onOpenBooking: () => void;
-}
+import { useBooking } from "@/components/BookingProvider";
 
-export default function CtaSection({ onOpenBooking }: CtaSectionProps) {
+export default function CtaSection() {
+  const { openBooking } = useBooking();
   return (
     <section id="contact" className="py-24 bg-slate-950 text-white relative overflow-hidden">
       {/* Background ambient lighting */}
@@ -46,7 +45,7 @@ export default function CtaSection({ onOpenBooking }: CtaSectionProps) {
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <button
-              onClick={onOpenBooking}
+              onClick={openBooking}
               className="px-8 py-4 rounded-full bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-sm sm:text-base transition-all duration-200 shadow-lg shadow-teal-500/25 hover:shadow-teal-500/40 hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex items-center gap-2"
             >
               <span>Book Appointment Now</span>

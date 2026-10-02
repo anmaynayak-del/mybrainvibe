@@ -6,7 +6,7 @@ import TechnologySection from "@/components/Technology/TechnologySection";
 export default function Technology() {
   return (
     <div className="min-h-screen bg-[#ebebed]">
-      <Navbar onOpenBooking={() => {}} />
+      <Navbar  />
       <div className="pt-24">
         <TechnologySection />
       </div>

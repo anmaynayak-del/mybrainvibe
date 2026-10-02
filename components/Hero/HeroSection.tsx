@@ -4,13 +4,12 @@ import React, { useEffect, useRef, useState } from "react";
 import CanvasSequence from "./CanvasSequence";
 import HeroOverlays from "./HeroOverlays";
 
-interface HeroSectionProps {
-  onOpenBooking: () => void;
-}
+import { useBooking } from "@/components/BookingProvider";
 
-export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
+export default function HeroSection() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [scrollProgress, setScrollProgress] = useState<number>(0);
+  const { openBooking } = useBooking();
 
   useEffect(() => {
     let ticking = false;
@@ -72,7 +71,7 @@ export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
         <HeroOverlays
           scrollProgress={scrollProgress}
           onExploreClick={handleExploreClick}
-          onBookClick={onOpenBooking}
+          onBookClick={openBooking}
         />
       </div>
     </div>
