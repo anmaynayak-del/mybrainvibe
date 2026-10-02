@@ -28,6 +28,8 @@ export const metadata: Metadata = {
   ],
 };
 
+import OfflineIndicator from "@/components/OfflineIndicator";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,6 +42,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-[#ebebed] text-slate-900 selection:bg-teal-600 selection:text-white">
         {children}
+        <OfflineIndicator />
       </body>
     </html>
   );
