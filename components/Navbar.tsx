@@ -20,12 +20,12 @@ export default function Navbar({ onOpenBooking }: NavbarProps) {
   }, []);
 
   const navLinks = [
-    { name: "What We Do", href: "#what-we-do" },
-    { name: "Who We Serve", href: "#who-we-serve" },
-    { name: "Technology", href: "#technology" },
-    { name: "Clinical AI", href: "#clinical-insights" },
-    { name: "About Us", href: "#about" },
-    { name: "Contact", href: "#contact" },
+    { name: "What We Do", href: "/what-we-do" },
+    { name: "Who We Serve", href: "/who-we-serve" },
+    { name: "Technology", href: "/technology" },
+    { name: "Clinical AI", href: "/clinical-ai" },
+    { name: "About Us", href: "/about" },
+    { name: "Contact", href: "/contact" },
   ];
 
   return (

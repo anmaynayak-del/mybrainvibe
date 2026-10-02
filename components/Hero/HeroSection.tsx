@@ -43,17 +43,14 @@ export default function HeroSection({ onOpenBooking }: HeroSectionProps) {
   }, []);
 
   const handleExploreClick = () => {
-    const whatWeDo = document.getElementById("what-we-do");
-    if (whatWeDo) {
-      whatWeDo.scrollIntoView({ behavior: "smooth" });
-    }
+    window.location.href = "/what-we-do";
   };
 
   return (
     <div
       ref={containerRef}
       id="hero"
-      className="relative w-full h-[360vh] bg-[#cbcdcf]"
+      className="relative w-full h-[500vh] bg-[#cbcdcf]"
     >
       {/* Sticky 100vh Viewport */}
       <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">

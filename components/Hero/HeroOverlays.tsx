@@ -93,8 +93,25 @@ export default function HeroOverlays({
           visibility: featureOpacity > 0.01 ? "visible" : "hidden",
         }}
       >
+        {/* Animated Hotspot over the EEG Sensor (Profile View) */}
+        <div className="absolute top-[42%] left-[45%] md:left-[48%] pointer-events-auto group">
+          <div className="relative flex items-center justify-center">
+            <div className="absolute w-6 h-6 bg-teal-500 rounded-full animate-ping opacity-60"></div>
+            <div className="relative w-3 h-3 bg-teal-600 border-2 border-white rounded-full shadow-[0_0_10px_rgba(13,148,136,0.8)] cursor-pointer"></div>
+            
+            {/* Tooltip */}
+            <div className="absolute left-full ml-4 top-1/2 -translate-y-1/2 w-48 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+              <div className="glass-panel p-3 rounded-xl shadow-lg border border-teal-200/50 relative">
+                <div className="absolute top-1/2 -left-2 -translate-y-1/2 border-y-8 border-y-transparent border-r-8 border-r-white"></div>
+                <h4 className="text-xs font-bold text-teal-800 mb-1">Dry-EEG Sensor</h4>
+                <p className="text-[10px] text-slate-600 leading-tight">Captures real-time cortical wave oscillations without conductive gels.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Left callout card */}
-        <div className="glass-panel p-5 rounded-2xl max-w-xs shadow-lg shadow-slate-200/50 border border-white/90 mb-auto md:my-auto md:mr-auto pointer-events-auto transform -translate-y-4 md:translate-y-0">
+        <div className="glass-panel p-5 rounded-2xl max-w-xs shadow-lg shadow-slate-200/50 border border-white/90 mb-auto md:my-auto md:mr-auto pointer-events-auto transform -translate-y-4 md:translate-y-0 relative z-10">
           <div className="flex items-center gap-2.5 text-teal-700 font-semibold text-xs tracking-wider uppercase mb-1.5">
             <Cpu className="w-4 h-4 text-teal-600" />
             <span>19-Channel Dry QEEG</span>
@@ -108,7 +125,7 @@ export default function HeroOverlays({
         </div>
 
         {/* Right callout card */}
-        <div className="glass-panel p-5 rounded-2xl max-w-xs shadow-lg shadow-slate-200/50 border border-white/90 mt-auto md:my-auto md:ml-auto pointer-events-auto">
+        <div className="glass-panel p-5 rounded-2xl max-w-xs shadow-lg shadow-slate-200/50 border border-white/90 mt-auto md:my-auto md:ml-auto pointer-events-auto relative z-10">
           <div className="flex items-center gap-2.5 text-teal-700 font-semibold text-xs tracking-wider uppercase mb-1.5">
             <Activity className="w-4 h-4 text-teal-600" />
             <span>Dual Heart-Brain Axis</span>
@@ -186,7 +203,7 @@ export default function HeroOverlays({
         </div>
 
         <button
-          onClick={onExploreClick}
+          onClick={() => window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })}
           className="flex items-center gap-1.5 text-slate-700 hover:text-teal-700 transition-colors pointer-events-auto cursor-pointer"
         >
           <span>Scroll to rotate &amp; explore</span>
