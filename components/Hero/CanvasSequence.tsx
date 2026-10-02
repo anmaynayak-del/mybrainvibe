@@ -54,11 +54,7 @@ export default function CanvasSequence({
       canvas.height = targetHeight;
     }
 
-    // We are cropping the top 15% (empty space) and bottom 30% (shoulders) of the image
-    const CROP_TOP = 0.15;
-    const CROP_BOTTOM = 0.30;
-    const TOTAL_CROP = CROP_TOP + CROP_BOTTOM;
-    const imgRatio = 16 / (9 * (1 - TOTAL_CROP));
+    const imgRatio = 16 / 9; // 1920x1080 native frame aspect ratio
     const canvasRatio = targetWidth / targetHeight;
 
     let drawWidth: number;
@@ -235,19 +231,13 @@ export default function CanvasSequence({
             lastRenderedFrameRef.current = exactFrame;
 
             // Draw primary frame
-            const sWidth = img1.naturalWidth;
-            const CROP_TOP = 0.15;
-            const CROP_BOTTOM = 0.30;
-            const sy = img1.naturalHeight * CROP_TOP;
-            const sHeight = img1.naturalHeight * (1 - (CROP_TOP + CROP_BOTTOM));
-            
             ctx.globalAlpha = 1.0;
-            ctx.drawImage(img1, 0, sy, sWidth, sHeight, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+            ctx.drawImage(img1, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
 
             // Sub-frame cross-fading for buttery transition
             if (blend > 0.02 && img2 && img2.complete && img2.naturalWidth > 0) {
               ctx.globalAlpha = blend;
-              ctx.drawImage(img2, 0, sy, sWidth, sHeight, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+              ctx.drawImage(img2, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
               ctx.globalAlpha = 1.0;
             }
           }
