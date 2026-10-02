@@ -50,23 +50,22 @@ export default function HeroOverlays({
         }}
       >
         {/* Subtle pill badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50/90 border border-teal-200/80 text-teal-800 text-xs font-semibold mb-5 shadow-xs backdrop-blur-md">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-teal-50/90 border border-teal-200/80 text-teal-800 text-[10px] sm:text-xs font-semibold mb-5 shadow-xs backdrop-blur-md">
           <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
           <span>Next-Generation QEEG & HRV Neurotechnology</span>
         </div>
 
         {/* Hero Title */}
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.12]">
-          Understand Your Brain. <br />
+        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-slate-900 leading-[1.12]">
+          Understand Your Stress. <br />
           <span className="bg-gradient-to-r from-teal-600 via-teal-700 to-slate-800 bg-clip-text text-transparent">
-            Transform Well-Being.
+            Transform Your Well-Being.
           </span>
         </h1>
 
         {/* Supporting description */}
-        <p className="mt-5 text-base sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
-          Advanced non-invasive brain function assessments designed to help clinicians,
-          researchers, and individuals measure stress, cognitive load, and neural balance with clinical precision.
+        <p className="mt-4 sm:mt-5 text-sm sm:text-lg text-slate-600 font-normal leading-relaxed max-w-xl">
+          Advanced HRV &amp; Brain Function Assessments for a Healthier, Balanced Mind-Body Connection.
         </p>
 
         {/* Actions */}

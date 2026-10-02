@@ -133,6 +133,24 @@ export default function AssessmentModal({ isOpen, onClose }: AssessmentModalProp
 
             <div>
               <label className="block text-xs font-semibold text-slate-700 mb-1">
+                Select Service
+              </label>
+              <div className="relative">
+                <Brain className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <select
+                  value={formData.assessmentType}
+                  onChange={(e) => setFormData({ ...formData, assessmentType: e.target.value })}
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 bg-white"
+                >
+                  <option>QEEG Brain Mapping + HRV StressCheck</option>
+                  <option>HRV StressCheck Only</option>
+                  <option>QEEG Brain Mapping Only</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 mb-1">
                 Preferred Center Location
               </label>
               <div className="relative">

@@ -88,24 +88,27 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Legal / Regulatory */}
+          {/* Contact Col */}
           <div>
             <h5 className="text-xs font-bold uppercase tracking-wider text-slate-200 mb-3">
-              Compliance &amp; Ethics
+              Contact Us
             </h5>
-            <p className="text-[11px] text-slate-500 leading-relaxed mb-3">
-              BrainVibe assessments are designed to support clinical evaluation and wellness tracking.
-            </p>
-            <div className="space-y-1.5 text-[11px]">
-              <a href="#" className="block text-slate-400 hover:text-white transition-colors">
-                Privacy Policy
-              </a>
-              <a href="#" className="block text-slate-400 hover:text-white transition-colors">
-                Terms &amp; Conditions
-              </a>
-              <a href="#" className="block text-slate-400 hover:text-white transition-colors">
-                Clinical Data Ethics
-              </a>
+            <div className="space-y-4">
+              <div>
+                <p className="text-[11px] font-semibold text-slate-300 mb-1">Registered Office</p>
+                <p className="text-[11px] text-slate-500 leading-relaxed mb-1">
+                  22Neuro (TDPL), POD 3, MENDELEEV BLOCK, IISER, Ward No. 8, NCL Colony, Pashan, Pune, Maharashtra 411008
+                </p>
+                <p className="text-[11px] text-teal-400 font-mono">7758850500</p>
+              </div>
+              
+              <div>
+                <p className="text-[11px] font-semibold text-slate-300 mb-1">Q-Point Clinic</p>
+                <p className="text-[11px] text-slate-500 leading-relaxed mb-1">
+                  Lotus Hospital, Dwarka Sai Wonders, Commercial Complex Survey no 173, Shiv Sai Road, Pimple Saudagar, Pune, Maharashtra 411027
+                </p>
+                <p className="text-[11px] text-teal-400 font-mono">9028454965</p>
+              </div>
             </div>
           </div>
         </div>

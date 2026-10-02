@@ -39,22 +39,11 @@ export default function Navbar({ onOpenBooking }: NavbarProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Brand Logo */}
         <a href="#" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform duration-300">
-            <Brain className="w-5 h-5 text-white stroke-[2.2]" />
-          </div>
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xl font-bold tracking-tight text-slate-900 font-sans">
-                BRAIN<span className="text-teal-600">VIBE</span>
-              </span>
-              <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-teal-50 text-teal-700 border border-teal-200/60">
-                22Neuro
-              </span>
-            </div>
-            <span className="text-[10px] tracking-wider uppercase text-slate-500 font-medium hidden sm:block">
-              Redefining Neuro Detection
-            </span>
-          </div>
+          <img 
+            src="/logo.png" 
+            alt="BrainVibe" 
+            className="h-10 sm:h-12 w-auto object-contain group-hover:scale-[1.02] transition-transform duration-300"
+          />
         </a>
 
         {/* Desktop Navigation Links */}

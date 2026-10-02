@@ -60,16 +60,22 @@ export default function CanvasSequence({
     let drawWidth: number;
     let drawHeight: number;
 
+    // Object-cover scaling: Fill the entire screen
     if (canvasRatio > imgRatio) {
-      drawHeight = targetHeight;
-      drawWidth = drawHeight * imgRatio;
-    } else {
       drawWidth = targetWidth;
       drawHeight = drawWidth / imgRatio;
+    } else {
+      drawHeight = targetHeight;
+      drawWidth = drawHeight * imgRatio;
     }
 
     const offsetX = (targetWidth - drawWidth) / 2;
-    const offsetY = (targetHeight - drawHeight) / 2;
+    let offsetY = (targetHeight - drawHeight) / 2;
+
+    // On mobile portrait, push the model down slightly so it doesn't overlap the large text
+    if (canvasRatio < 1) {
+      offsetY += targetHeight * 0.15;
+    }
 
     layoutRef.current = {
       width: targetWidth,
@@ -191,8 +197,6 @@ export default function CanvasSequence({
 
       // Only draw when the frame position actually moves or on initial draw
       if (frameDelta > 0.001 || lastRenderedFrameRef.current === -1) {
-        lastRenderedFrameRef.current = exactFrame;
-
         const frameIndex1 = Math.floor(exactFrame);
         const frameIndex2 = Math.min(TOTAL_FRAMES - 1, frameIndex1 + 1);
         const blend = exactFrame - frameIndex1;
@@ -217,20 +221,25 @@ export default function CanvasSequence({
         const img2 = imagesRef.current[frameIndex2];
         const layout = layoutRef.current;
 
-        if (img1 && img1.complete && img1.naturalWidth > 0 && layout.width > 0) {
-          // Fill perimeter
+        if (layout.width > 0) {
+          // Unconditionally fill perimeter with background color to prevent black screen
           ctx.fillStyle = "#cbcdcf";
           ctx.fillRect(0, 0, layout.width, layout.height);
 
-          // Draw primary frame
-          ctx.globalAlpha = 1.0;
-          ctx.drawImage(img1, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+          if (img1 && img1.complete && img1.naturalWidth > 0) {
+            // Only cache the rendered frame if we actually drew the image!
+            lastRenderedFrameRef.current = exactFrame;
 
-          // Sub-frame cross-fading for buttery transition
-          if (blend > 0.02 && img2 && img2.complete && img2.naturalWidth > 0) {
-            ctx.globalAlpha = blend;
-            ctx.drawImage(img2, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+            // Draw primary frame
             ctx.globalAlpha = 1.0;
+            ctx.drawImage(img1, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+
+            // Sub-frame cross-fading for buttery transition
+            if (blend > 0.02 && img2 && img2.complete && img2.naturalWidth > 0) {
+              ctx.globalAlpha = blend;
+              ctx.drawImage(img2, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+              ctx.globalAlpha = 1.0;
+            }
           }
         }
       }
