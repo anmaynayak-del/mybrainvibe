@@ -54,7 +54,9 @@ export default function CanvasSequence({
       canvas.height = targetHeight;
     }
 
-    const imgRatio = 16 / 9; // 1920x1080 native frame aspect ratio
+    // We are cropping the bottom 30% of the image to remove the shoulders/chest
+    const CROP_PERCENT = 0.30;
+    const imgRatio = 16 / (9 * (1 - CROP_PERCENT));
     const canvasRatio = targetWidth / targetHeight;
 
     let drawWidth: number;
@@ -231,13 +233,15 @@ export default function CanvasSequence({
             lastRenderedFrameRef.current = exactFrame;
 
             // Draw primary frame
+            const sWidth = img1.naturalWidth;
+            const sHeight = img1.naturalHeight * 0.70; // 1 - 0.30 crop
             ctx.globalAlpha = 1.0;
-            ctx.drawImage(img1, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+            ctx.drawImage(img1, 0, 0, sWidth, sHeight, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
 
             // Sub-frame cross-fading for buttery transition
             if (blend > 0.02 && img2 && img2.complete && img2.naturalWidth > 0) {
               ctx.globalAlpha = blend;
-              ctx.drawImage(img2, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
+              ctx.drawImage(img2, 0, 0, sWidth, sHeight, layout.offsetX, layout.offsetY, layout.drawWidth, layout.drawHeight);
               ctx.globalAlpha = 1.0;
             }
           }
