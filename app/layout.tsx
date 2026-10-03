@@ -42,8 +42,9 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased scroll-smooth`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-[#ebebed] text-slate-900 selection:bg-teal-600 selection:text-white">
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#ebebed] text-slate-900 selection:bg-teal-600 selection:text-white">
         <SplashScreen />
         <BookingProvider>
           {children}
