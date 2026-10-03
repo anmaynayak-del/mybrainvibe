@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ArrowDown, ShieldCheck, Sparkles, Brain, HeartPulse, Building, Users } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface HeroOverlaysProps {
   scrollProgress: number; // 0.0 to 1.0
@@ -15,6 +16,14 @@ export default function HeroOverlays({
   onExploreClick,
   onBookClick,
 }: HeroOverlaysProps) {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   const [activeNode, setActiveNode] = useState<string | null>("patients");
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
@@ -67,7 +76,7 @@ export default function HeroOverlays({
     <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 sm:p-12 lg:p-16 w-full overflow-hidden">
       {/* 1. INTRO NARRATIVE LAYER — LEFT SPLIT (Phase 1) */}
       <div
-        className="absolute left-0 top-[18%] sm:top-[25%] lg:top-[28%] pt-6 sm:pt-0 pl-2 sm:pl-4 lg:pl-4 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-start transition-all duration-150 ease-out z-20 pointer-events-none"
+        className="absolute left-0 top-[18%] max-lg:!top-[12dvh] sm:top-[25%] lg:top-[28%] pt-6 sm:pt-0 pl-2 sm:pl-4 lg:pl-4 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-start transition-all duration-150 ease-out z-20 pointer-events-none"
         style={{
           opacity: introOpacity,
           transform: `translateY(-${introTranslateY}px)`,
@@ -99,7 +108,7 @@ export default function HeroOverlays({
 
       {/* 1. INTRO NARRATIVE LAYER — RIGHT SPLIT (Phase 1) */}
       <div
-        className="absolute right-0 top-[65%] sm:top-[35%] lg:top-[40%] pr-2 sm:pr-4 lg:pr-4 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-end text-right transition-all duration-150 ease-out z-20 pointer-events-none"
+        className="absolute right-0 top-[65%] max-lg:!top-[75dvh] max-lg:!pr-4 sm:top-[35%] lg:top-[40%] pr-2 sm:pr-4 lg:pr-4 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-end text-right transition-all duration-150 ease-out z-20 pointer-events-none"
         style={{
           opacity: introOpacity,
           transform: `translateY(-${introTranslateY}px)`,
@@ -139,10 +148,10 @@ export default function HeroOverlays({
         </div>
 
         {/* Content Split (50% left, 50% right) */}
-        <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between w-full">
+        <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between max-lg:!justify-end max-lg:!pb-[8dvh] max-lg:!gap-4 w-full">
           
           {/* LEFT SIDE */}
-          <div className="absolute left-0 top-[50%] -translate-y-1/2 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
+          <div className="absolute left-0 top-[50%] -translate-y-1/2 max-lg:!relative max-lg:!top-auto max-lg:!-translate-y-0 max-lg:!pl-4 max-lg:!pr-4 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
             <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-3 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm">
@@ -157,7 +166,7 @@ export default function HeroOverlays({
           </div>
 
           {/* RIGHT SIDE */}
-          <div className="absolute right-0 top-[50%] -translate-y-1/2 pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
+          <div className="absolute right-0 top-[50%] -translate-y-1/2 max-lg:!relative max-lg:!top-auto max-lg:!-translate-y-0 max-lg:!pr-4 max-lg:!pl-4 pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
             <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-3 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
               <div className="flex items-center gap-4 mb-2">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm">
@@ -209,226 +218,223 @@ export default function HeroOverlays({
           </div>
         </div>
 
-        {/* ── PATIENTS node — LEFT side, vertically centered ── */}
-        <div
-          className="absolute pointer-events-auto"
-          style={{
-            left: "6%",
-            top: "50%",
-            transform: `translateY(calc(-50% + ${(0.51 - scrollProgress) * 50}px))`,
-          }}
-        >
-          <div 
-            className="flex items-center gap-4"
-            onMouseEnter={() => { setActiveNode("patients"); setIsHovered(true); }}
-            onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
+        {/* Nodes Wrapper */}
+        <div className="absolute inset-0 max-lg:!flex max-lg:!flex-col max-lg:!items-center max-lg:!justify-center max-lg:!pt-[15dvh] max-lg:!gap-8">
+          {/* ── PATIENTS node — LEFT side, vertically centered ── */}
+          <div
+            className="absolute pointer-events-auto max-lg:!relative max-lg:!left-auto max-lg:!top-auto max-lg:!transform-none max-lg:!w-full max-lg:!flex max-lg:!justify-center"
+            style={{
+              left: isMobile ? undefined : "6%",
+              top: isMobile ? undefined : "50%",
+              transform: isMobile ? undefined : `translateY(calc(-50% + ${(0.51 - scrollProgress) * 50}px))`,
+            }}
           >
-            {/* The Circle */}
-            <div
-              className="relative cursor-pointer group"
-              style={{
-                width: activeNode === "patients" ? "140px" : "130px",
-                height: activeNode === "patients" ? "140px" : "130px",
-                transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
-              }}
+            <div 
+              className="flex items-center gap-4 max-lg:!flex-col"
+              onMouseEnter={() => { setActiveNode("patients"); setIsHovered(true); }}
+              onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
+              onClick={() => { setActiveNode("patients"); setIsHovered(true); }}
             >
-              {/* Photo */}
-              <img
-                src="/who-patients.png"
-                alt="Patients"
-                className="absolute inset-0 w-full h-full rounded-full object-cover z-10"
-              />
-              {/* Border ring */}
+              {/* The Circle */}
               <div
-                className="absolute -inset-[3px] rounded-full border-[3px] transition-all duration-300 z-20"
+                className="relative cursor-pointer group"
                 style={{
-                  borderColor: activeNode === "patients" ? "rgba(13, 148, 136, 0.9)" : "rgba(13, 148, 136, 0.45)",
-                  boxShadow: activeNode === "patients"
-                    ? "0 0 28px rgba(13, 148, 136, 0.25), 0 4px 20px rgba(0,0,0,0.08)"
-                    : "0 2px 12px rgba(0,0,0,0.06)",
-                }}
-              />
-              {/* Hover glow */}
-              <div className="absolute -inset-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" style={{ boxShadow: "0 0 24px rgba(13, 148, 136, 0.2)" }} />
-              {/* Status dot */}
-              <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-teal-500 z-30 border-2 border-white" style={{ boxShadow: "0 0 6px rgba(13,148,136,0.5)" }} />
-              {/* Label below */}
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center whitespace-nowrap">
-                <span className="text-xs sm:text-sm font-bold text-slate-800">Patients</span>
-                <span className="text-[9px] text-slate-500 font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-300">Hover to explore</span>
-              </div>
-            </div>
-
-            {/* Expanded panel — expands to the RIGHT */}
-            <div
-              className="flex items-center gap-3 overflow-hidden"
-              style={{
-                maxWidth: activeNode === "patients" ? "320px" : "0px",
-                opacity: activeNode === "patients" ? 1 : 0,
-                transform: activeNode === "patients" ? "translateX(0)" : "translateX(-24px)",
-                transition: "max-width 500ms cubic-bezier(0.23, 1, 0.32, 1), opacity 450ms ease-out 100ms, transform 450ms ease-out 80ms",
-              }}
-            >
-              {/* Connector line */}
-              <div className="w-6 h-px bg-teal-400/40 shrink-0" />
-              <div
-                className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px]"
-                style={{
-                  background: "rgba(255,255,255,0.85)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.55)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  width: activeNode === "patients" ? (isMobile ? "110px" : "140px") : (isMobile ? "100px" : "130px"),
+                  height: activeNode === "patients" ? (isMobile ? "110px" : "140px") : (isMobile ? "100px" : "130px"),
+                  transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
                 }}
               >
-                <h3 className="text-teal-900 font-bold text-base sm:text-lg mb-1.5">Patients</h3>
-                <p className="text-sm text-slate-700 leading-relaxed">Understand and manage chronic stress, fatigue, or brain fog through objective testing.</p>
+                {/* Photo */}
+                <Image fill sizes="140px" src="/who-patients.png" alt="Patients" className="absolute inset-0 w-full h-full rounded-full object-cover z-10" />
+                {/* Border ring */}
+                <div
+                  className="absolute -inset-[3px] rounded-full border-[3px] transition-all duration-300 z-20"
+                  style={{
+                    borderColor: activeNode === "patients" ? "rgba(13, 148, 136, 0.9)" : "rgba(13, 148, 136, 0.45)",
+                    boxShadow: activeNode === "patients"
+                      ? "0 0 28px rgba(13, 148, 136, 0.25), 0 4px 20px rgba(0,0,0,0.08)"
+                      : "0 2px 12px rgba(0,0,0,0.06)",
+                  }}
+                />
+                {/* Hover glow */}
+                <div className="absolute -inset-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" style={{ boxShadow: "0 0 24px rgba(13, 148, 136, 0.2)" }} />
+                {/* Status dot */}
+                <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-teal-500 z-30 border-2 border-white" style={{ boxShadow: "0 0 6px rgba(13,148,136,0.5)" }} />
+                {/* Label below */}
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center whitespace-nowrap max-lg:hidden">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800">Patients</span>
+                  <span className="text-[9px] text-slate-500 font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-300">Hover to explore</span>
+                </div>
+              </div>
+
+              {/* Expanded panel — expands to the RIGHT (or BELOW on mobile) */}
+              <div
+                className="flex items-center gap-3 overflow-hidden max-lg:!flex-col max-lg:!gap-0"
+                style={{
+                  maxWidth: activeNode === "patients" ? "320px" : "0px",
+                  maxHeight: activeNode === "patients" ? "320px" : "0px",
+                  opacity: activeNode === "patients" ? 1 : 0,
+                  transform: activeNode === "patients" ? (isMobile ? "translateY(0)" : "translateX(0)") : (isMobile ? "translateY(-10px)" : "translateX(-24px)"),
+                  transition: "max-width 500ms ease, max-height 500ms ease, opacity 450ms ease, transform 450ms ease",
+                }}
+              >
+                {/* Connector line */}
+                <div className="w-6 h-px bg-teal-400/40 shrink-0 max-lg:hidden" />
+                <div
+                  className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px] max-lg:!min-w-[200px]"
+                  style={{
+                    background: "rgba(255,255,255,0.85)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.55)",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <h3 className="text-teal-900 font-bold text-base sm:text-lg mb-1.5 max-lg:text-center">Patients</h3>
+                  <p className="text-sm text-slate-700 leading-relaxed max-lg:text-center">Understand and manage chronic stress, fatigue, or brain fog through objective testing.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* ── CLINICS & PRACTITIONERS node — RIGHT side, upper-middle ── */}
-        <div
-          className="absolute pointer-events-auto"
-          style={{
-            right: "6%",
-            top: "30%",
-            transform: `translateY(calc(-50% + ${(0.51 - scrollProgress) * 65}px))`,
-          }}
-        >
-          <div 
-            className="flex flex-row-reverse items-center gap-4"
-            onMouseEnter={() => { setActiveNode("clinics"); setIsHovered(true); }}
-            onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
+          {/* ── CLINICS & PRACTITIONERS node — RIGHT side, upper-middle ── */}
+          <div
+            className="absolute pointer-events-auto max-lg:!relative max-lg:!right-auto max-lg:!top-auto max-lg:!transform-none max-lg:!w-full max-lg:!flex max-lg:!justify-center"
+            style={{
+              right: isMobile ? undefined : "6%",
+              top: isMobile ? undefined : "30%",
+              transform: isMobile ? undefined : `translateY(calc(-50% + ${(0.51 - scrollProgress) * 65}px))`,
+            }}
           >
-            {/* The Circle */}
-            <div
-              className="relative cursor-pointer group"
-              style={{
-                width: activeNode === "clinics" ? "140px" : "130px",
-                height: activeNode === "clinics" ? "140px" : "130px",
-                transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
-              }}
+            <div 
+              className="flex flex-row-reverse items-center gap-4 max-lg:!flex-col"
+              onMouseEnter={() => { setActiveNode("clinics"); setIsHovered(true); }}
+              onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
+              onClick={() => { setActiveNode("clinics"); setIsHovered(true); }}
             >
-              <img
-                src="/who-clinics.png"
-                alt="Clinics & Practitioners"
-                className="absolute inset-0 w-full h-full rounded-full object-cover z-10"
-              />
+              {/* The Circle */}
               <div
-                className="absolute -inset-[3px] rounded-full border-[3px] transition-all duration-300 z-20"
+                className="relative cursor-pointer group"
                 style={{
-                  borderColor: activeNode === "clinics" ? "rgba(13, 148, 136, 0.9)" : "rgba(13, 148, 136, 0.45)",
-                  boxShadow: activeNode === "clinics"
-                    ? "0 0 28px rgba(13, 148, 136, 0.25), 0 4px 20px rgba(0,0,0,0.08)"
-                    : "0 2px 12px rgba(0,0,0,0.06)",
-                }}
-              />
-              <div className="absolute -inset-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" style={{ boxShadow: "0 0 24px rgba(13, 148, 136, 0.2)" }} />
-              <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-teal-500 z-30 border-2 border-white" style={{ boxShadow: "0 0 6px rgba(13,148,136,0.5)" }} />
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center whitespace-nowrap">
-                <span className="text-xs sm:text-sm font-bold text-slate-800">Clinics</span>
-                <span className="text-[9px] text-slate-500 font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-300">Hover to explore</span>
-              </div>
-            </div>
-
-            {/* Expanded panel — expands to the LEFT */}
-            <div
-              className="flex items-center gap-3 overflow-hidden"
-              style={{
-                maxWidth: activeNode === "clinics" ? "320px" : "0px",
-                opacity: activeNode === "clinics" ? 1 : 0,
-                transform: activeNode === "clinics" ? "translateX(0)" : "translateX(24px)",
-                transition: "max-width 500ms cubic-bezier(0.23, 1, 0.32, 1), opacity 450ms ease-out 100ms, transform 450ms ease-out 80ms",
-              }}
-            >
-              <div
-                className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px]"
-                style={{
-                  background: "rgba(255,255,255,0.85)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.55)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  width: activeNode === "clinics" ? (isMobile ? "110px" : "140px") : (isMobile ? "100px" : "130px"),
+                  height: activeNode === "clinics" ? (isMobile ? "110px" : "140px") : (isMobile ? "100px" : "130px"),
+                  transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
                 }}
               >
-                <h3 className="text-teal-900 font-bold text-base sm:text-lg mb-1.5">Clinics & Practitioners</h3>
-                <p className="text-sm text-slate-700 leading-relaxed">Integrate stress profiling into clinical decision-making for advanced heart and brain care.</p>
+                <Image fill sizes="140px" src="/who-clinics.png" alt="Clinics & Practitioners" className="absolute inset-0 w-full h-full rounded-full object-cover z-10" />
+                <div
+                  className="absolute -inset-[3px] rounded-full border-[3px] transition-all duration-300 z-20"
+                  style={{
+                    borderColor: activeNode === "clinics" ? "rgba(13, 148, 136, 0.9)" : "rgba(13, 148, 136, 0.45)",
+                    boxShadow: activeNode === "clinics"
+                      ? "0 0 28px rgba(13, 148, 136, 0.25), 0 4px 20px rgba(0,0,0,0.08)"
+                      : "0 2px 12px rgba(0,0,0,0.06)",
+                  }}
+                />
+                <div className="absolute -inset-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" style={{ boxShadow: "0 0 24px rgba(13, 148, 136, 0.2)" }} />
+                <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-teal-500 z-30 border-2 border-white" style={{ boxShadow: "0 0 6px rgba(13,148,136,0.5)" }} />
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center whitespace-nowrap max-lg:hidden">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800">Clinics</span>
+                  <span className="text-[9px] text-slate-500 font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-300">Hover to explore</span>
+                </div>
               </div>
-              {/* Connector line */}
-              <div className="w-6 h-px bg-teal-400/40 shrink-0" />
+
+              {/* Expanded panel — expands to the LEFT (or BELOW on mobile) */}
+              <div
+                className="flex items-center gap-3 overflow-hidden max-lg:!flex-col max-lg:!gap-0"
+                style={{
+                  maxWidth: activeNode === "clinics" ? "320px" : "0px",
+                  maxHeight: activeNode === "clinics" ? "320px" : "0px",
+                  opacity: activeNode === "clinics" ? 1 : 0,
+                  transform: activeNode === "clinics" ? (isMobile ? "translateY(0)" : "translateX(0)") : (isMobile ? "translateY(-10px)" : "translateX(24px)"),
+                  transition: "max-width 500ms ease, max-height 500ms ease, opacity 450ms ease, transform 450ms ease",
+                }}
+              >
+                <div
+                  className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px] max-lg:!min-w-[200px]"
+                  style={{
+                    background: "rgba(255,255,255,0.85)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.55)",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <h3 className="text-teal-900 font-bold text-base sm:text-lg mb-1.5 max-lg:text-center">Clinics & Practitioners</h3>
+                  <p className="text-sm text-slate-700 leading-relaxed max-lg:text-center">Integrate stress profiling into clinical decision-making for advanced heart and brain care.</p>
+                </div>
+                {/* Connector line */}
+                <div className="w-6 h-px bg-teal-400/40 shrink-0 max-lg:hidden" />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ── CORPORATE WELLNESS node — RIGHT side, lower ── */}
-        <div
-          className="absolute pointer-events-auto"
-          style={{
-            right: "6%",
-            top: "70%",
-            transform: `translateY(calc(-50% + ${(0.51 - scrollProgress) * 90}px))`,
-          }}
-        >
-          <div 
-            className="flex flex-row-reverse items-center gap-4"
-            onMouseEnter={() => { setActiveNode("corporate"); setIsHovered(true); }}
-            onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
+          {/* ── CORPORATE WELLNESS node — RIGHT side, lower ── */}
+          <div
+            className="absolute pointer-events-auto max-lg:!relative max-lg:!right-auto max-lg:!top-auto max-lg:!transform-none max-lg:!w-full max-lg:!flex max-lg:!justify-center"
+            style={{
+              right: isMobile ? undefined : "6%",
+              top: isMobile ? undefined : "70%",
+              transform: isMobile ? undefined : `translateY(calc(-50% + ${(0.51 - scrollProgress) * 90}px))`,
+            }}
           >
-            {/* The Circle */}
-            <div
-              className="relative cursor-pointer group"
-              style={{
-                width: activeNode === "corporate" ? "140px" : "130px",
-                height: activeNode === "corporate" ? "140px" : "130px",
-                transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
-              }}
+            <div 
+              className="flex flex-row-reverse items-center gap-4 max-lg:!flex-col"
+              onMouseEnter={() => { setActiveNode("corporate"); setIsHovered(true); }}
+              onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
+              onClick={() => { setActiveNode("corporate"); setIsHovered(true); }}
             >
-              <img
-                src="/who-corporate.png"
-                alt="Corporate Wellness"
-                className="absolute inset-0 w-full h-full rounded-full object-cover z-10"
-              />
+              {/* The Circle */}
               <div
-                className="absolute -inset-[3px] rounded-full border-[3px] transition-all duration-300 z-20"
+                className="relative cursor-pointer group"
                 style={{
-                  borderColor: activeNode === "corporate" ? "rgba(13, 148, 136, 0.9)" : "rgba(13, 148, 136, 0.45)",
-                  boxShadow: activeNode === "corporate"
-                    ? "0 0 28px rgba(13, 148, 136, 0.25), 0 4px 20px rgba(0,0,0,0.08)"
-                    : "0 2px 12px rgba(0,0,0,0.06)",
-                }}
-              />
-              <div className="absolute -inset-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" style={{ boxShadow: "0 0 24px rgba(13, 148, 136, 0.2)" }} />
-              <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-teal-500 z-30 border-2 border-white" style={{ boxShadow: "0 0 6px rgba(13,148,136,0.5)" }} />
-              <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center whitespace-nowrap">
-                <span className="text-xs sm:text-sm font-bold text-slate-800">Corporate</span>
-                <span className="text-[9px] text-slate-500 font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-300">Hover to explore</span>
-              </div>
-            </div>
-
-            {/* Expanded panel — expands to the LEFT */}
-            <div
-              className="flex items-center gap-3 overflow-hidden"
-              style={{
-                maxWidth: activeNode === "corporate" ? "320px" : "0px",
-                opacity: activeNode === "corporate" ? 1 : 0,
-                transform: activeNode === "corporate" ? "translateX(0)" : "translateX(24px)",
-                transition: "max-width 500ms cubic-bezier(0.23, 1, 0.32, 1), opacity 450ms ease-out 100ms, transform 450ms ease-out 80ms",
-              }}
-            >
-              <div
-                className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px]"
-                style={{
-                  background: "rgba(255,255,255,0.85)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(255,255,255,0.55)",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  width: activeNode === "corporate" ? (isMobile ? "110px" : "140px") : (isMobile ? "100px" : "130px"),
+                  height: activeNode === "corporate" ? (isMobile ? "110px" : "140px") : (isMobile ? "100px" : "130px"),
+                  transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
                 }}
               >
-                <h3 className="text-teal-900 font-bold text-base sm:text-lg mb-1.5">Corporate Wellness</h3>
-                <p className="text-sm text-slate-700 leading-relaxed">Empower workforce well-being with early detection and preventive strategies for stress and burnout.</p>
+                <Image fill sizes="140px" src="/who-corporate.png" alt="Corporate Wellness" className="absolute inset-0 w-full h-full rounded-full object-cover z-10" />
+                <div
+                  className="absolute -inset-[3px] rounded-full border-[3px] transition-all duration-300 z-20"
+                  style={{
+                    borderColor: activeNode === "corporate" ? "rgba(13, 148, 136, 0.9)" : "rgba(13, 148, 136, 0.45)",
+                    boxShadow: activeNode === "corporate"
+                      ? "0 0 28px rgba(13, 148, 136, 0.25), 0 4px 20px rgba(0,0,0,0.08)"
+                      : "0 2px 12px rgba(0,0,0,0.06)",
+                  }}
+                />
+                <div className="absolute -inset-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" style={{ boxShadow: "0 0 24px rgba(13, 148, 136, 0.2)" }} />
+                <div className="absolute top-1 right-1 w-3 h-3 rounded-full bg-teal-500 z-30 border-2 border-white" style={{ boxShadow: "0 0 6px rgba(13,148,136,0.5)" }} />
+                <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center whitespace-nowrap max-lg:hidden">
+                  <span className="text-xs sm:text-sm font-bold text-slate-800">Corporate</span>
+                  <span className="text-[9px] text-slate-500 font-medium opacity-60 group-hover:opacity-100 transition-opacity duration-300">Hover to explore</span>
+                </div>
               </div>
-              {/* Connector line */}
-              <div className="w-6 h-px bg-teal-400/40 shrink-0" />
+
+              {/* Expanded panel — expands to the LEFT (or BELOW on mobile) */}
+              <div
+                className="flex items-center gap-3 overflow-hidden max-lg:!flex-col max-lg:!gap-0"
+                style={{
+                  maxWidth: activeNode === "corporate" ? "320px" : "0px",
+                  maxHeight: activeNode === "corporate" ? "320px" : "0px",
+                  opacity: activeNode === "corporate" ? 1 : 0,
+                  transform: activeNode === "corporate" ? (isMobile ? "translateY(0)" : "translateX(0)") : (isMobile ? "translateY(-10px)" : "translateX(24px)"),
+                  transition: "max-width 500ms ease, max-height 500ms ease, opacity 450ms ease, transform 450ms ease",
+                }}
+              >
+                <div
+                  className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px] max-lg:!min-w-[200px]"
+                  style={{
+                    background: "rgba(255,255,255,0.85)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.55)",
+                    boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+                  }}
+                >
+                  <h3 className="text-teal-900 font-bold text-base sm:text-lg mb-1.5 max-lg:text-center">Corporate Wellness</h3>
+                  <p className="text-sm text-slate-700 leading-relaxed max-lg:text-center">Empower workforce well-being with early detection and preventive strategies for stress and burnout.</p>
+                </div>
+                {/* Connector line */}
+                <div className="w-6 h-px bg-teal-400/40 shrink-0 max-lg:hidden" />
+              </div>
             </div>
           </div>
         </div>
@@ -459,47 +465,50 @@ export default function HeroOverlays({
           </div>
         </div>
 
-        {/* HRV StressCheck — LEFT */}
-        <div className="absolute left-0 top-[50%] -translate-y-1/2 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
-          {/* Card 1 */}
-          <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-4 relative overflow-hidden group cursor-default hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
-            <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
-              <HeartPulse className="w-40 h-40 text-teal-900" />
-            </div>
-            <div className="relative z-10 flex items-center gap-4 mb-1">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm group-hover:scale-105 transition-transform">
-                <HeartPulse className="w-6 h-6 text-teal-600" />
+        {/* Cards Wrapper */}
+        <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between max-lg:!justify-end max-lg:!pb-[8dvh] max-lg:!gap-4 w-full">
+          {/* HRV StressCheck — LEFT */}
+          <div className="absolute left-0 top-[50%] -translate-y-1/2 max-lg:!relative max-lg:!top-auto max-lg:!-translate-y-0 max-lg:!pl-4 max-lg:!pr-4 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
+            {/* Card 1 */}
+            <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-4 relative overflow-hidden group cursor-default hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
+              <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
+                <HeartPulse className="w-40 h-40 text-teal-900" />
               </div>
-              <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">HRV StressCheck</h3>
+              <div className="relative z-10 flex items-center gap-4 mb-1">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm group-hover:scale-105 transition-transform">
+                  <HeartPulse className="w-6 h-6 text-teal-600" />
+                </div>
+                <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">HRV StressCheck</h3>
+              </div>
+              <p className="text-sm sm:text-base text-slate-600 relative z-10 leading-relaxed font-medium">
+                Real-time <span className="font-semibold text-slate-900">Heart Rate Variability (HRV)</span> testing to understand how your body reacts to stress and manage it effectively.
+              </p>
+              <Link href="/services/hrv-stresscheck" className="mt-2 self-start px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md relative z-10 cursor-pointer inline-block">
+                Know More &rarr;
+              </Link>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 relative z-10 leading-relaxed font-medium">
-              Real-time <span className="font-semibold text-slate-900">Heart Rate Variability (HRV)</span> testing to understand how your body reacts to stress and manage it effectively.
-            </p>
-            <Link href="/services/hrv-stresscheck" className="mt-2 self-start px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md relative z-10 cursor-pointer inline-block">
-              Know More &rarr;
-            </Link>
           </div>
-        </div>
 
-        {/* QEEG Brain Mapping — RIGHT */}
-        <div className="absolute right-0 top-[50%] -translate-y-1/2 pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
-          {/* Card 2 */}
-          <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-4 relative overflow-hidden group cursor-default hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
-            <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
-              <Brain className="w-40 h-40 text-teal-900" />
-            </div>
-            <div className="relative z-10 flex items-center gap-4 mb-1">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm group-hover:scale-105 transition-transform">
-                <Brain className="w-6 h-6 text-teal-600" />
+          {/* QEEG Brain Mapping — RIGHT */}
+          <div className="absolute right-0 top-[50%] -translate-y-1/2 max-lg:!relative max-lg:!top-auto max-lg:!-translate-y-0 max-lg:!pr-4 max-lg:!pl-4 pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
+            {/* Card 2 */}
+            <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-4 relative overflow-hidden group cursor-default hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
+              <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
+                <Brain className="w-40 h-40 text-teal-900" />
               </div>
-              <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">QEEG Brain Mapping</h3>
+              <div className="relative z-10 flex items-center gap-4 mb-1">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm group-hover:scale-105 transition-transform">
+                  <Brain className="w-6 h-6 text-teal-600" />
+                </div>
+                <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">QEEG Brain Mapping</h3>
+              </div>
+              <p className="text-sm sm:text-base text-slate-600 relative z-10 leading-relaxed font-medium">
+                Advanced <span className="font-semibold text-slate-900">Quantitative EEG</span> for analysing electrical brain activity and identifying cognitive imbalances.
+              </p>
+              <Link href="/services/qeeg-brain-assessment" className="mt-2 self-start px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md relative z-10 cursor-pointer inline-block">
+                Know More &rarr;
+              </Link>
             </div>
-            <p className="text-sm sm:text-base text-slate-600 relative z-10 leading-relaxed font-medium">
-              Advanced <span className="font-semibold text-slate-900">Quantitative EEG</span> for analysing electrical brain activity and identifying cognitive imbalances.
-            </p>
-            <Link href="/services/qeeg-brain-assessment" className="mt-2 self-start px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md relative z-10 cursor-pointer inline-block">
-              Know More &rarr;
-            </Link>
           </div>
         </div>
       </div>
@@ -541,3 +550,4 @@ export default function HeroOverlays({
     </div>
   );
 }
+

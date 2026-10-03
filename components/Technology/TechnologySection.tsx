@@ -46,7 +46,7 @@ export default function TechnologySection() {
   ];
 
   return (
-    <section id="technology" className="py-28 bg-white border-t border-slate-200/70">
+    <section id="technology" className="py-28 max-lg:!py-16 bg-white border-t border-slate-200/70">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl mb-16">

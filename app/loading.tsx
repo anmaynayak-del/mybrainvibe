@@ -1,10 +1,14 @@
+import Image from "next/image";
+
 export default function Loading() {
   return (
     <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-[var(--background)]">
       <div className="relative flex flex-col items-center justify-center mb-6">
-        <img 
+        <Image 
           src="/logo.png" 
-          alt="Loading BrainVibe" 
+          alt="Loading BrainVibe"
+          width={160}
+          height={64} 
           className="h-16 sm:h-20 w-auto object-contain animate-pulse"
         />
       </div>

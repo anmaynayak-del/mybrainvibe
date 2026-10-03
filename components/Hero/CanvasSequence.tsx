@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState, useCallback } from "react";
-import { HERO_FRAMES, TOTAL_FRAMES } from "@/lib/frames";
+import { HERO_FRAMES, TOTAL_FRAMES, getMobileFrames } from "@/lib/frames";
 
 interface CanvasSequenceProps {
   scrollProgress: number; // 0.0 to 1.0
@@ -21,6 +21,7 @@ export default function CanvasSequence({
   scrollProgress,
   onLoadProgress,
 }: CanvasSequenceProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const imagesRef = useRef<(HTMLImageElement | null)[]>(new Array(TOTAL_FRAMES).fill(null));
   const currentFrameRef = useRef<number>(0);
@@ -37,17 +38,28 @@ export default function CanvasSequence({
   });
 
   const [loadedCount, setLoadedCount] = useState<number>(0);
+  const isMobileInitial = typeof window !== "undefined" ? window.innerWidth < 1024 : false;
+  const initialFramePaths = isMobileInitial ? getMobileFrames(false) : HERO_FRAMES;
+  const [framesToLoad, setFramesToLoad] = useState<number>(initialFramePaths.length);
   const [isReady, setIsReady] = useState<boolean>(false);
 
-  // 1. Cached layout calculation — ZERO getBoundingClientRect() calls inside requestAnimationFrame
-  const updateLayout = useCallback(() => {
+  // 1. Cached layout calculation using ResizeObserver
+  const updateLayout = useCallback((rectWidth: number, rectHeight: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    const rect = canvas.getBoundingClientRect();
-    const targetWidth = Math.max(1, Math.floor(rect.width * dpr));
-    const targetHeight = Math.max(1, Math.floor(rect.height * dpr));
+    let dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    
+    // Below 1024px cap DPR at 2 (1.5 if the device is low-end)
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nav = navigator as any;
+      const isLowEnd = (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) || (nav.deviceMemory && nav.deviceMemory < 4);
+      dpr = isLowEnd ? Math.min(dpr, 1.5) : Math.min(dpr, 2);
+    }
+
+    const targetWidth = Math.max(1, Math.floor(rectWidth * dpr));
+    const targetHeight = Math.max(1, Math.floor(rectHeight * dpr));
 
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
       canvas.width = targetWidth;
@@ -91,11 +103,15 @@ export default function CanvasSequence({
   }, []);
 
   useEffect(() => {
-    updateLayout();
-    window.addEventListener("resize", updateLayout, { passive: true });
-    return () => {
-      window.removeEventListener("resize", updateLayout);
-    };
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateLayout(entry.contentRect.width, entry.contentRect.height);
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
   }, [updateLayout]);
 
   // 2. High-performance interleaved preloader with off-thread asynchronous decoding
@@ -103,22 +119,37 @@ export default function CanvasSequence({
     let isCancelled = false;
     let loaded = 0;
 
-    // Interleaved order: keyframes across the 360 rotation load first
-    // This guarantees the middle (frames 30-80) never has missing frames or lag
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const nav = navigator as any;
+    const saveData = nav.connection?.saveData === true;
+    const isMobile = window.innerWidth < 1024;
+    
+    // Only load the frames we need based on device/connection
+    const framePaths = isMobile ? getMobileFrames(saveData) : HERO_FRAMES;
+    const numFrames = framePaths.length;
+    // Removed setState from effect body, using value directly
+    if (framesToLoad !== numFrames) {
+      // Delaying setState to avoid cascading render during initial render pass
+      setTimeout(() => setFramesToLoad(numFrames), 0);
+    }
+
+    // We build the order based on the indices of the frames we're actually loading
+    const indicesToLoad = framePaths.map((path) => HERO_FRAMES.indexOf(path));
+
     const order: number[] = [];
     const step = 4;
 
-    // Pass 1: Every 4th frame across the entire turntable
-    for (let i = 0; i < TOTAL_FRAMES; i += step) {
-      order.push(i);
+    // Pass 1: Every 4th frame across the available ones
+    for (let i = 0; i < indicesToLoad.length; i += step) {
+      order.push(indicesToLoad[i]);
     }
     // Pass 2: Halfway between keyframes
-    for (let i = 2; i < TOTAL_FRAMES; i += step) {
-      if (!order.includes(i)) order.push(i);
+    for (let i = 2; i < indicesToLoad.length; i += step) {
+      if (!order.includes(indicesToLoad[i])) order.push(indicesToLoad[i]);
     }
     // Pass 3: All remaining intermediate frames
-    for (let i = 0; i < TOTAL_FRAMES; i++) {
-      if (!order.includes(i)) order.push(i);
+    for (let i = 0; i < indicesToLoad.length; i++) {
+      if (!order.includes(indicesToLoad[i])) order.push(indicesToLoad[i]);
     }
 
     const loadFrame = async (index: number) => {
@@ -142,16 +173,16 @@ export default function CanvasSequence({
       setLoadedCount(loaded);
 
       if (onLoadProgress) {
-        onLoadProgress(Math.round((loaded / TOTAL_FRAMES) * 100));
+        onLoadProgress(Math.round((loaded / numFrames) * 100));
       }
 
-      if (index === 0 || loaded >= 4) {
+      if (index === 0 || loaded >= Math.min(4, numFrames)) {
         setIsReady(true);
       }
     };
 
     // Parallel batches with concurrency pool
-    const CONCURRENCY = 6;
+    const CONCURRENCY = isMobile ? 3 : 6; // Lighter on mobile
     let activeIndex = 0;
 
     const worker = async () => {
@@ -257,7 +288,7 @@ export default function CanvasSequence({
   }, [isReady]);
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center select-none overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full flex items-center justify-center select-none overflow-hidden">
       {/* Loading state indicator */}
       {!isReady && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#cbcdcf]/90 backdrop-blur-sm transition-opacity duration-500">
@@ -271,11 +302,11 @@ export default function CanvasSequence({
           <div className="w-48 h-1.5 bg-slate-300 rounded-full mt-3 overflow-hidden">
             <div
               className="h-full bg-teal-600 transition-all duration-200 ease-out"
-              style={{ width: `${Math.round((loadedCount / TOTAL_FRAMES) * 100)}%` }}
+              style={{ width: `${Math.round((loadedCount / framesToLoad) * 100)}%` }}
             />
           </div>
           <span className="text-[11px] font-mono text-slate-700 mt-1.5">
-            {Math.round((loadedCount / TOTAL_FRAMES) * 100)}%
+            {Math.round((loadedCount / framesToLoad) * 100)}%
           </span>
         </div>
       )}

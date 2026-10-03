@@ -8,9 +8,14 @@ export default function OfflineIndicator() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    // Check initial state
-    if (typeof navigator !== "undefined" && !navigator.onLine) {
-      setIsOffline(true);
+    // Initialize with current state safely after hydration
+    if (typeof window !== "undefined" && "onLine" in navigator) {
+      if (!navigator.onLine) {
+        // Double check because navigator.onLine can be unreliable on some VPNs/OS
+        fetch("/favicon.ico?ping=" + Date.now(), { method: "HEAD", cache: "no-store" })
+          .then(() => setIsOffline(false))
+          .catch(() => setIsOffline(true));
+      }
     }
 
     const handleOnline = () => {
@@ -32,7 +37,7 @@ export default function OfflineIndicator() {
   if (!isOffline || dismissed) return null;
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-full max-w-sm px-4 animate-in slide-in-from-bottom-5 fade-in duration-300">
+    <div className="fixed bottom-6 max-lg:bottom-auto max-lg:top-[max(5rem,env(safe-area-inset-top,5rem))] left-1/2 -translate-x-1/2 z-[100] w-full max-w-sm px-4 animate-in slide-in-from-bottom-5 max-lg:slide-in-from-top-5 fade-in duration-300">
       <div className="glass-panel-dark flex items-center justify-between gap-4 px-4 py-3 rounded-2xl shadow-2xl shadow-slate-900/20">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-full bg-rose-500/20 flex items-center justify-center text-rose-400">

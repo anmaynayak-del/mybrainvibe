@@ -1,13 +1,16 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-[var(--background)]">
       <div className="mb-10">
-        <img 
+        <Image 
           src="/logo.png" 
           alt="BrainVibe Logo" 
+          width={160}
+          height={64}
           className="h-16 sm:h-20 w-auto object-contain"
         />
       </div>

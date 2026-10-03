@@ -28,6 +28,12 @@ export const metadata: Metadata = {
   ],
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
+
 import OfflineIndicator from "@/components/OfflineIndicator";
 import SplashScreen from "@/components/SplashScreen";
 

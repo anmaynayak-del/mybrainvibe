@@ -85,7 +85,7 @@ export default function WhoWeServeSection() {
   ];
 
   return (
-    <section id="who-we-serve" className="py-28 bg-[#ebebed] border-t border-slate-200/70">
+    <section id="who-we-serve" className="py-28 max-lg:!py-16 bg-[#ebebed] border-t border-slate-200/70">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-16">
@@ -113,7 +113,7 @@ export default function WhoWeServeSection() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(index)}
-                className={`flex flex-col text-left p-5 rounded-xl transition-all duration-200 border cursor-pointer ${
+                className={`flex flex-col text-left p-5 max-sm:!p-3 rounded-xl transition-all duration-200 border cursor-pointer ${
                   isSelected
                     ? "bg-white border-teal-600 shadow-md shadow-teal-600/10 ring-1 ring-teal-600"
                     : "bg-white/60 hover:bg-white border-slate-200/80 text-slate-600 hover:border-slate-300"
@@ -133,10 +133,10 @@ export default function WhoWeServeSection() {
                     0{index + 1}
                   </span>
                 </div>
-                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-slate-600 uppercase tracking-wider line-clamp-1">
                   {item.category}
                 </span>
-                <span className="text-sm font-bold text-slate-900 mt-0.5">
+                <span className="text-sm font-bold text-slate-900 mt-0.5 line-clamp-1">
                   {item.title}
                 </span>
               </button>
@@ -145,7 +145,7 @@ export default function WhoWeServeSection() {
         </div>
 
         {/* Active Persona Editorial Detail Card */}
-        <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-xl shadow-slate-200/50">
+        <div className="bg-white rounded-3xl p-8 sm:p-12 max-sm:!p-6 border border-slate-200/90 shadow-xl shadow-slate-200/50">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-7">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-semibold mb-3">

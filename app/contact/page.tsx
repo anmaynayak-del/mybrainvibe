@@ -25,7 +25,7 @@ export default function Contact() {
               Get in <span className="text-teal-600">Touch</span>
             </h1>
             <p className="text-lg md:text-xl text-slate-600 font-medium">
-              We're here to answer any questions about our assessments, technology, and clinical services.
+              We&apos;re here to answer any questions about our assessments, technology, and clinical services.
             </p>
           </div>
 

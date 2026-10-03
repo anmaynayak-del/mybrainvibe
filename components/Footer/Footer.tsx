@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Brain, Shield, Heart, ArrowUp } from "lucide-react";
+import { Brain, ArrowUp } from "lucide-react";
 
 export default function Footer() {
   const scrollToTop = () => {

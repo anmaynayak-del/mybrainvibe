@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Brain, Sparkles, ShieldCheck, ChevronRight, ArrowDown } from "lucide-react";
@@ -18,19 +18,28 @@ export default function QEEGBrainAssessmentPage() {
     width: 0, height: 0, drawWidth: 0, drawHeight: 0, offsetX: 0, offsetY: 0,
   });
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const canvasViewportRef = useRef<HTMLDivElement | null>(null);
 
   const [loadedCount, setLoadedCount] = useState(0);
   const [isReady, setIsReady] = useState(false);
 
   // Cached layout calculation
-  const updateLayout = useCallback(() => {
+  const updateLayout = useCallback((rectWidth: number, rectHeight: number) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
-    const rect = canvas.getBoundingClientRect();
-    const targetWidth = Math.max(1, Math.floor(rect.width * dpr));
-    const targetHeight = Math.max(1, Math.floor(rect.height * dpr));
+    let dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+    
+    // Below 1024px cap DPR at 2 (1.5 if the device is low-end)
+    if (typeof window !== "undefined" && window.innerWidth < 1024) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const nav = navigator as any;
+      const isLowEnd = (nav.hardwareConcurrency && nav.hardwareConcurrency < 4) || (nav.deviceMemory && nav.deviceMemory < 4);
+      dpr = isLowEnd ? Math.min(dpr, 1.5) : Math.min(dpr, 2);
+    }
+
+    const targetWidth = Math.max(1, Math.floor(rectWidth * dpr));
+    const targetHeight = Math.max(1, Math.floor(rectHeight * dpr));
 
     if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
       canvas.width = targetWidth;
@@ -63,9 +72,15 @@ export default function QEEGBrainAssessmentPage() {
   }, []);
 
   useEffect(() => {
-    updateLayout();
-    window.addEventListener("resize", updateLayout, { passive: true });
-    return () => window.removeEventListener("resize", updateLayout);
+    const container = canvasViewportRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        updateLayout(entry.contentRect.width, entry.contentRect.height);
+      }
+    });
+    observer.observe(container);
+    return () => observer.disconnect();
   }, [updateLayout]);
 
   // Interleaved preloader
@@ -243,8 +258,8 @@ export default function QEEGBrainAssessmentPage() {
         className="relative w-full h-[500vh] bg-[#cbcdcf]"
       >
         {/* STICKY VIEWPORT */}
-        <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">
-          {/* Radial glow — same as homepage */}
+        <div ref={canvasViewportRef} className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">
+          {/* Radial glow â€” same as homepage */}
           <div className="absolute inset-0 radial-glow pointer-events-none" />
 
           {/* Scroll Progress Bar */}
@@ -302,7 +317,7 @@ export default function QEEGBrainAssessmentPage() {
                 <span className="text-teal-600">Assessment.</span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-[300px] sm:max-w-[360px] mb-6 sm:mb-8 pointer-events-auto">
-                AI-Powered Brain Mapping. Measures your brain&apos;s electrical activity in real time — revealing patterns linked to focus, mood, memory, and mental clarity.
+                AI-Powered Brain Mapping. Measures your brain&apos;s electrical activity in real time â€” revealing patterns linked to focus, mood, memory, and mental clarity.
               </p>
               <div className="flex flex-wrap items-center gap-3 sm:gap-4 pointer-events-auto">
                 <Link
@@ -513,7 +528,7 @@ export default function QEEGBrainAssessmentPage() {
                     <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">What You Get</h3>
                   </div>
                   <p className="text-sm sm:text-base text-slate-600 relative z-10 leading-relaxed font-medium">
-                    A comprehensive <span className="font-semibold text-slate-900">AI-powered brain map</span> with actionable insights into your cognitive health, attention patterns, and emotional well-being — all in a single non-invasive session.
+                    A comprehensive <span className="font-semibold text-slate-900">AI-powered brain map</span> with actionable insights into your cognitive health, attention patterns, and emotional well-being â€” all in a single non-invasive session.
                   </p>
                   <Link href="/technology" className="mt-2 self-start px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md relative z-10 cursor-pointer inline-block">
                     Our Technology &rarr;
@@ -564,3 +579,5 @@ export default function QEEGBrainAssessmentPage() {
     </main>
   );
 }
+
+

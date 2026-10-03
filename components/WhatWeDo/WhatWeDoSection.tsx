@@ -60,7 +60,7 @@ export default function WhatWeDoSection() {
   ];
 
   return (
-    <section id="what-we-do" className="relative py-28 bg-white border-t border-slate-100">
+    <section id="what-we-do" className="relative py-28 max-lg:!py-16 bg-white border-t border-slate-100">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl">
@@ -78,13 +78,13 @@ export default function WhatWeDoSection() {
         </div>
 
         {/* Feature Grid */}
-        <div className="mt-16 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+        <div className="mt-16 max-lg:!mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <div
                 key={feature.id}
-                className="group relative bg-[#ebebed] hover:bg-white rounded-2xl p-8 border border-slate-200/70 hover:border-teal-300 shadow-xs hover:shadow-xl hover:shadow-teal-900/5 transition-all duration-300"
+                className="group relative bg-[#ebebed] hover:bg-white rounded-2xl p-8 max-sm:!p-6 border border-slate-200/70 hover:border-teal-300 shadow-xs hover:shadow-xl hover:shadow-teal-900/5 transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-6">
                   <div className="w-12 h-12 rounded-xl bg-teal-50 group-hover:bg-teal-600 group-hover:text-white text-teal-700 flex items-center justify-center transition-all duration-300 shadow-xs">
@@ -123,12 +123,12 @@ export default function WhatWeDoSection() {
         </div>
 
         {/* Clinical Impact Metrics Strip */}
-        <div className="mt-20 rounded-3xl bg-slate-900 text-white p-8 sm:p-12 relative overflow-hidden shadow-2xl shadow-slate-900/10">
+        <div className="mt-20 max-lg:!mt-12 rounded-3xl bg-slate-900 text-white p-8 sm:p-12 max-sm:!p-6 relative overflow-hidden shadow-2xl shadow-slate-900/10">
           <div className="absolute -right-24 -top-24 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl pointer-events-none" />
           
-          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+          <div className="relative z-10 grid grid-cols-2 md:grid-cols-4 gap-8 divide-y md:divide-y-0 md:divide-x divide-slate-800 max-md:!divide-y-0 max-md:[&>div:nth-child(n+3)]:pt-8 max-md:[&>div:nth-child(n+3)]:border-t max-md:[&>div:nth-child(n+3)]:border-slate-800">
             {metrics.map((metric, i) => (
-              <div key={i} className={`flex flex-col ${i > 0 ? "pt-6 md:pt-0 md:pl-8" : ""}`}>
+              <div key={i} className={`flex flex-col ${i > 0 ? "pt-6 md:pt-0 md:pl-8" : ""} max-md:!pt-0 max-md:!pl-0`}>
                 <span className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-teal-400 font-mono">
                   {metric.value}
                 </span>

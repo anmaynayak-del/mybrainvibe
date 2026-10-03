@@ -69,11 +69,29 @@ const BANDS: WaveBand[] = [
 export default function NeuralWaveViewer() {
   const [activeBandIndex, setActiveBandIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isVisible, setIsVisible] = useState(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
   const timeRef = useRef<number>(0);
 
   const currentBand = BANDS[activeBandIndex];
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    // Only pause when off-screen on mobile (cap animation work)
+    const isMobile = window.innerWidth < 1024;
+    if (!isMobile) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      setIsVisible(entries[0].isIntersecting);
+    }, { threshold: 0.1 });
+    
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -84,76 +102,81 @@ export default function NeuralWaveViewer() {
     let localTime = timeRef.current;
 
     const render = () => {
-      if (isPlaying) {
+      if (isPlaying && isVisible) {
         localTime += 0.04;
         timeRef.current = localTime;
       }
 
-      const width = canvas.width;
-      const height = canvas.height;
-      const centerY = height / 2;
+      if (isVisible || typeof window !== 'undefined' && window.innerWidth >= 1024) {
+        const width = canvas.width;
+        const height = canvas.height;
+        const centerY = height / 2;
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+        const pointStep = isMobile ? 4 : 2;
+        const gridStep = isMobile ? 80 : 40;
 
-      ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, width, height);
 
-      // Draw subtle grid lines
-      ctx.strokeStyle = "rgba(226, 232, 240, 0.6)";
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      // Horizontal center
-      ctx.moveTo(0, centerY);
-      ctx.lineTo(width, centerY);
-      // Vertical grid divisions
-      for (let x = 0; x < width; x += 40) {
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, height);
-      }
-      ctx.stroke();
-
-      // Multi-channel background waveforms (ghosted traces)
-      BANDS.forEach((band, idx) => {
-        if (idx === activeBandIndex) return;
-        ctx.beginPath();
-        ctx.strokeStyle = "rgba(148, 163, 184, 0.18)";
+        // Draw subtle grid lines
+        ctx.strokeStyle = "rgba(226, 232, 240, 0.6)";
         ctx.lineWidth = 1;
+        ctx.beginPath();
+        // Horizontal center
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(width, centerY);
+        // Vertical grid divisions
+        for (let x = 0; x < width; x += gridStep) {
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, height);
+        }
+        ctx.stroke();
 
-        for (let x = 0; x < width; x += 2) {
-          const freq = band.frequency * 0.08;
-          const amp = band.amplitude * 0.45;
-          const noise = Math.sin(x * 0.05 + localTime * 2) * 2;
+        // Multi-channel background waveforms (ghosted traces)
+        BANDS.forEach((band, idx) => {
+          if (idx === activeBandIndex) return;
+          ctx.beginPath();
+          ctx.strokeStyle = "rgba(148, 163, 184, 0.18)";
+          ctx.lineWidth = 1;
+
+          for (let x = 0; x < width; x += pointStep) {
+            const freq = band.frequency * 0.08;
+            const amp = band.amplitude * 0.45;
+            const noise = Math.sin(x * 0.05 + localTime * 2) * 2;
+            const y =
+              centerY +
+              Math.sin(x * freq * 0.15 + localTime * band.frequency * 0.3) * amp +
+              noise;
+
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.stroke();
+        });
+
+        // Active selected wave channel
+        ctx.beginPath();
+        ctx.strokeStyle = currentBand.color;
+        ctx.lineWidth = 2.5;
+        ctx.shadowColor = currentBand.color;
+        ctx.shadowBlur = 8;
+
+        for (let x = 0; x < width; x += pointStep) {
+          const freq = currentBand.frequency * 0.08;
+          const amp = currentBand.amplitude;
+          // Natural physiological harmonic variance
+          const harmonic = Math.sin(x * 0.03 + localTime) * 3;
+          const subNoise = Math.cos(x * 0.09 - localTime * 1.5) * 1.5;
           const y =
             centerY +
-            Math.sin(x * freq * 0.15 + localTime * band.frequency * 0.3) * amp +
-            noise;
+            Math.sin(x * freq * 0.15 + localTime * currentBand.frequency * 0.3) * amp +
+            harmonic +
+            subNoise;
 
           if (x === 0) ctx.moveTo(x, y);
           else ctx.lineTo(x, y);
         }
         ctx.stroke();
-      });
 
-      // Active selected wave channel
-      ctx.beginPath();
-      ctx.strokeStyle = currentBand.color;
-      ctx.lineWidth = 2.5;
-      ctx.shadowColor = currentBand.color;
-      ctx.shadowBlur = 8;
-
-      for (let x = 0; x < width; x += 2) {
-        const freq = currentBand.frequency * 0.08;
-        const amp = currentBand.amplitude;
-        // Natural physiological harmonic variance
-        const harmonic = Math.sin(x * 0.03 + localTime) * 3;
-        const subNoise = Math.cos(x * 0.09 - localTime * 1.5) * 1.5;
-        const y =
-          centerY +
-          Math.sin(x * freq * 0.15 + localTime * currentBand.frequency * 0.3) * amp +
-          harmonic +
-          subNoise;
-
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
       ctx.shadowBlur = 0; // reset
 
       // Draw real-time active pulse dot at leading edge
@@ -169,6 +192,7 @@ export default function NeuralWaveViewer() {
       ctx.beginPath();
       ctx.arc(leadX, leadY, 4, 0, Math.PI * 2);
       ctx.fill();
+      } // CLOSE THE IF BRACKET
 
       animFrameRef.current = requestAnimationFrame(render);
     };
@@ -178,10 +202,10 @@ export default function NeuralWaveViewer() {
     return () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     };
-  }, [activeBandIndex, isPlaying, currentBand]);
+  }, [activeBandIndex, isPlaying, currentBand, isVisible]);
 
   return (
-    <div className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-2xl">
+    <div ref={containerRef} className="bg-slate-900 rounded-3xl p-6 sm:p-8 text-white border border-slate-800 shadow-2xl">
       {/* Header info */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
         <div>

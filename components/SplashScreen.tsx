@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function SplashScreen() {
   const [show, setShow] = useState(true);
@@ -27,20 +28,22 @@ export default function SplashScreen() {
 
   return (
     <div 
-      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#ebebed] transition-opacity duration-500 ${
+      className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#ebebed] transition-opacity duration-500 h-[100dvh] overflow-y-auto ${
         isFading ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
     >
-      <div className="relative flex flex-col items-center justify-center mb-6">
-        <img 
+      <div className="relative flex flex-col items-center justify-center min-h-full py-8">
+        <Image 
           src="/logo.png" 
           alt="Loading BrainVibe" 
-          className="h-16 sm:h-20 w-auto object-contain animate-pulse"
+          width={160}
+          height={80}
+          className="h-12 sm:h-20 w-auto object-contain animate-pulse"
         />
+        <h3 className="text-xs sm:text-sm font-semibold tracking-widest text-slate-500 uppercase animate-pulse mt-4">
+          Initializing...
+        </h3>
       </div>
-      <h3 className="text-sm font-semibold tracking-widest text-slate-500 uppercase animate-pulse mt-4">
-        Initializing...
-      </h3>
     </div>
   );
 }

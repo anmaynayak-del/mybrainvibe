@@ -17,7 +17,7 @@ export default function ClinicalInsightsSection() {
   const [selectedMetric, setSelectedMetric] = useState<"stress" | "focus" | "coherence">("stress");
 
   return (
-    <section id="clinical-insights" className="py-28 bg-[#ebebed] border-t border-slate-200/70">
+    <section id="clinical-insights" className="py-28 max-lg:!py-16 bg-[#ebebed] border-t border-slate-200/70">
       <div className="w-full px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="max-w-3xl mb-16">
@@ -47,13 +47,13 @@ export default function ClinicalInsightsSection() {
                   Sample Neurological Biomarker Profile
                 </h3>
               </div>
-              <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold">
+              <span className="px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold max-sm:hidden">
                 Status: Calibrated
               </span>
             </div>
 
             {/* Metric Switcher Tabs */}
-            <div className="flex rounded-xl bg-slate-100 p-1.5 gap-1.5 mb-8">
+            <div className="flex rounded-xl bg-slate-100 p-1.5 gap-1.5 mb-8 max-sm:!flex-col">
               <button
                 onClick={() => setSelectedMetric("stress")}
                 className={`flex-1 py-2 text-xs sm:text-sm font-semibold rounded-lg transition-all cursor-pointer ${
