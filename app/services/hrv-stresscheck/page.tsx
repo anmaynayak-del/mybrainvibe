@@ -2,9 +2,13 @@ import React from "react";
 import Link from "next/link";
 import { Activity, ShieldCheck, Heart, Stethoscope, ChevronRight } from "lucide-react";
 
+import Navbar from "@/components/Navbar";
+
 export default function HRVStressCheckPage() {
   return (
-    <main className="pt-32 pb-24 min-h-screen bg-[#ebebed]">
+    <main className="min-h-screen bg-[#ebebed]">
+      <Navbar />
+      <div className="pt-32 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
@@ -91,6 +95,7 @@ export default function HRVStressCheckPage() {
           </div>
         </div>
 
+      </div>
       </div>
     </main>
   );
