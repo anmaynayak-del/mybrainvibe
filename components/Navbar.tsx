@@ -42,7 +42,7 @@ export default function Navbar() {
     <header
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent py-4"
     >
-      <div suppressHydrationWarning className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <div suppressHydrationWarning className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
         {/* Brand Logo */}
         <Link href="/" className="flex items-center gap-3 group">
           <img 
@@ -55,7 +55,7 @@ export default function Navbar() {
         {/* Desktop Navigation Links */}
         <nav className="hidden md:flex items-center gap-1 p-1 rounded-full text-sm bg-transparent">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+            const isActive = pathname === link.href || pathname.startsWith(link.href + "/") || (link.dropdown && link.dropdown.some((sub) => pathname === sub.href || pathname.startsWith(sub.href + "/")));
             
             if (link.dropdown) {
               return (
@@ -128,7 +128,7 @@ export default function Navbar() {
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-b border-slate-200 px-5 py-4 shadow-lg animate-in slide-in-from-top-2">
           <div className="flex flex-col gap-2">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/") || (link.dropdown && link.dropdown.some((sub) => pathname === sub.href || pathname.startsWith(sub.href + "/")));
               
               if (link.dropdown) {
                 return (

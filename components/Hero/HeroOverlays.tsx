@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowDown, ShieldCheck, Sparkles, Brain, HeartPulse, Building, Users } from "lucide-react";
 import Link from "next/link";
 
@@ -15,7 +15,23 @@ export default function HeroOverlays({
   onExploreClick,
   onBookClick,
 }: HeroOverlaysProps) {
-  const [activeNode, setActiveNode] = useState<string | null>(null);
+  const [activeNode, setActiveNode] = useState<string | null>("patients");
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (isHovered) return;
+
+    const nodes = ["patients", "clinics", "corporate"];
+    const intervalId = setInterval(() => {
+      setActiveNode((current) => {
+        const currentIndex = current ? nodes.indexOf(current) : -1;
+        const nextIndex = (currentIndex + 1) % nodes.length;
+        return nodes[nextIndex];
+      });
+    }, 4000);
+
+    return () => clearInterval(intervalId);
+  }, [isHovered]);
 
   // Phase calculations with smooth easing bounds
   
@@ -48,10 +64,10 @@ export default function HeroOverlays({
   );
 
   return (
-    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 sm:p-12 lg:p-16 max-w-7xl mx-auto overflow-hidden">
+    <div className="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-6 sm:p-12 lg:p-16 w-full overflow-hidden">
       {/* 1. INTRO NARRATIVE LAYER — LEFT SPLIT (Phase 1) */}
       <div
-        className="absolute left-0 top-[18%] sm:top-[25%] lg:top-[28%] pt-6 sm:pt-0 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-start transition-all duration-150 ease-out z-20 pointer-events-none"
+        className="absolute left-0 top-[18%] sm:top-[25%] lg:top-[28%] pt-6 sm:pt-0 pl-2 sm:pl-4 lg:pl-4 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-start transition-all duration-150 ease-out z-20 pointer-events-none"
         style={{
           opacity: introOpacity,
           transform: `translateY(-${introTranslateY}px)`,
@@ -83,7 +99,7 @@ export default function HeroOverlays({
 
       {/* 1. INTRO NARRATIVE LAYER — RIGHT SPLIT (Phase 1) */}
       <div
-        className="absolute right-0 top-[65%] sm:top-[35%] lg:top-[40%] pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-end sm:items-start text-right sm:text-left transition-all duration-150 ease-out z-20 pointer-events-none"
+        className="absolute right-0 top-[65%] sm:top-[35%] lg:top-[40%] pr-2 sm:pr-4 lg:pr-4 w-full sm:w-[45%] xl:w-[40%] flex flex-col items-end text-right transition-all duration-150 ease-out z-20 pointer-events-none"
         style={{
           opacity: introOpacity,
           transform: `translateY(-${introTranslateY}px)`,
@@ -97,31 +113,72 @@ export default function HeroOverlays({
 
       {/* 2. ABOUT MYBRAINVIBE (Phase 2) */}
       <div
-        className="absolute inset-0 flex items-center justify-end p-6 sm:p-12 lg:p-16 transition-all duration-200 pointer-events-none"
+        className="absolute inset-0 transition-all duration-200 pointer-events-none"
         style={{
           opacity: aboutOpacity,
           visibility: aboutOpacity > 0.01 ? "visible" : "hidden",
           transform: `translateY(${(0.25 - scrollProgress) * 60}px)`,
         }}
       >
-        <div className="p-6 sm:p-8 rounded-3xl max-w-lg shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-white/80 pointer-events-auto bg-white/85 backdrop-blur-lg">
-          <h2 className="text-3xl sm:text-4xl font-extrabold mb-5 tracking-tight">
-            <span className="text-teal-600">About</span> <span className="text-[#F5B041]">MyBrainVibe</span>
-          </h2>
-          <div className="space-y-4 text-sm sm:text-base text-slate-800 leading-relaxed font-medium">
-            <p>
-              In today&apos;s high-pressure world, MyBrainVibe is pioneering a new approach to stress assessment and brain function analysis. Using advanced, non-invasive technologies such as Heart Rate Variability (HRV) stress testing and AI-enabled QEEG brain mapping, we help individuals and clinicians understand the physiological and neurological impact of stress.
-            </p>
-            <p>
-              Powered by 22Neuro, a team of neuroscientists, clinicians, and technology experts, MyBrainVibe combines clinical experience from leading neurologists and behavioural health experts with research collaborations from institutions like IIT Madras (HTIC) and SRMC, Chennai.
-            </p>
-            <p>
-              Our mission is to bridge the gap between mental and physical health by offering safe, data-driven, and personalized insights into stress, autonomic balance, cognitive health, and overall well-being.
-            </p>
+        {/* Heading — Top Center */}
+        <div className="absolute top-6 sm:top-12 lg:top-16 left-0 right-0 text-center flex justify-center z-10">
+          <div 
+            className="inline-block px-6 py-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.85)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.55)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            }}
+          >
+            <span className="text-teal-600 font-semibold tracking-wider uppercase text-xs sm:text-sm mb-1 block">Discover</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+              About <span className="text-[#F5B041]">MyBrainVibe</span>
+            </h2>
           </div>
-          <Link href="/about" className="inline-flex mt-6 px-6 py-2.5 rounded-full bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors shadow-md hover:shadow-lg cursor-pointer">
-            Read More
-          </Link>
+        </div>
+
+        {/* Content Split (50% left, 50% right) */}
+        <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between w-full">
+          
+          {/* LEFT SIDE */}
+          <div className="absolute left-0 top-[50%] -translate-y-1/2 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
+            <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-3 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm">
+                  <Sparkles className="w-6 h-6 text-teal-600" />
+                </div>
+                <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">Our Approach</h3>
+              </div>
+              <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-medium relative z-10">
+                In today&apos;s high-pressure world, MyBrainVibe is pioneering a new approach to stress assessment and brain function analysis. Using advanced, non-invasive technologies such as <span className="font-semibold text-slate-900">Heart Rate Variability (HRV)</span> stress testing and <span className="font-semibold text-slate-900">AI-enabled QEEG</span> brain mapping, we help individuals and clinicians understand the physiological and neurological impact of stress.
+              </p>
+            </div>
+          </div>
+
+          {/* RIGHT SIDE */}
+          <div className="absolute right-0 top-[50%] -translate-y-1/2 pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
+            <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-3 relative overflow-hidden group hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
+              <div className="flex items-center gap-4 mb-2">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center shrink-0 border border-teal-100/50 shadow-sm">
+                  <Users className="w-6 h-6 text-teal-600" />
+                </div>
+                <h3 className="text-slate-900 font-bold text-xl sm:text-2xl">Our Expertise</h3>
+              </div>
+              <div className="space-y-4 text-sm sm:text-base text-slate-700 leading-relaxed font-medium relative z-10">
+                <p>
+                  Powered by <span className="font-semibold text-slate-900">22Neuro</span>, a team of neuroscientists, clinicians, and technology experts, MyBrainVibe combines clinical experience from leading neurologists and behavioural health experts with research collaborations from institutions like <span className="font-semibold text-slate-900">IIT Madras (HTIC)</span> and SRMC, Chennai.
+                </p>
+                <p>
+                  Our mission is to bridge the gap between mental and physical health by offering safe, data-driven, and personalized insights into stress, autonomic balance, cognitive health, and overall well-being.
+                </p>
+              </div>
+              <Link href="/about" className="mt-2 self-start px-6 py-2.5 rounded-full bg-slate-900 text-white text-xs sm:text-sm font-semibold hover:bg-slate-800 transition-colors shadow-md relative z-10 cursor-pointer inline-block">
+                Read More &rarr;
+              </Link>
+            </div>
+          </div>
+
         </div>
       </div>
 
@@ -135,11 +192,21 @@ export default function HeroOverlays({
       >
         {/* Section eyebrow heading — top center */}
         <div 
-          className="absolute top-6 sm:top-12 lg:top-16 left-0 right-0 text-center transition-transform duration-300 ease-out"
+          className="absolute top-6 sm:top-12 lg:top-16 left-0 right-0 text-center transition-transform duration-300 ease-out flex justify-center"
           style={{ transform: `translateY(${(0.51 - scrollProgress) * 30}px)` }}
         >
-          <span className="text-teal-700 font-semibold tracking-wider uppercase text-[10px] sm:text-xs block mb-1">Target Audience</span>
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">Who We Serve</h2>
+          <div 
+            className="inline-block px-6 py-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.85)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.55)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            }}
+          >
+            <span className="text-teal-700 font-semibold tracking-wider uppercase text-[10px] sm:text-xs block mb-1">Target Audience</span>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">Who We Serve</h2>
+          </div>
         </div>
 
         {/* ── PATIENTS node — LEFT side, vertically centered ── */}
@@ -153,15 +220,15 @@ export default function HeroOverlays({
         >
           <div 
             className="flex items-center gap-4"
-            onMouseEnter={() => setActiveNode("patients")}
-            onMouseLeave={() => setActiveNode(null)}
+            onMouseEnter={() => { setActiveNode("patients"); setIsHovered(true); }}
+            onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
           >
             {/* The Circle */}
             <div
               className="relative cursor-pointer group"
               style={{
-                width: activeNode === "patients" ? "120px" : "110px",
-                height: activeNode === "patients" ? "120px" : "110px",
+                width: activeNode === "patients" ? "140px" : "130px",
+                height: activeNode === "patients" ? "140px" : "130px",
                 transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
@@ -207,7 +274,7 @@ export default function HeroOverlays({
               <div
                 className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px]"
                 style={{
-                  background: "rgba(255,255,255,0.42)",
+                  background: "rgba(255,255,255,0.85)",
                   backdropFilter: "blur(12px)",
                   border: "1px solid rgba(255,255,255,0.55)",
                   boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
@@ -231,15 +298,15 @@ export default function HeroOverlays({
         >
           <div 
             className="flex flex-row-reverse items-center gap-4"
-            onMouseEnter={() => setActiveNode("clinics")}
-            onMouseLeave={() => setActiveNode(null)}
+            onMouseEnter={() => { setActiveNode("clinics"); setIsHovered(true); }}
+            onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
           >
             {/* The Circle */}
             <div
               className="relative cursor-pointer group"
               style={{
-                width: activeNode === "clinics" ? "120px" : "110px",
-                height: activeNode === "clinics" ? "120px" : "110px",
+                width: activeNode === "clinics" ? "140px" : "130px",
+                height: activeNode === "clinics" ? "140px" : "130px",
                 transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
@@ -278,7 +345,7 @@ export default function HeroOverlays({
               <div
                 className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px]"
                 style={{
-                  background: "rgba(255,255,255,0.42)",
+                  background: "rgba(255,255,255,0.85)",
                   backdropFilter: "blur(12px)",
                   border: "1px solid rgba(255,255,255,0.55)",
                   boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
@@ -297,22 +364,22 @@ export default function HeroOverlays({
         <div
           className="absolute pointer-events-auto"
           style={{
-            right: "8%",
+            right: "6%",
             top: "70%",
             transform: `translateY(calc(-50% + ${(0.51 - scrollProgress) * 90}px))`,
           }}
         >
           <div 
             className="flex flex-row-reverse items-center gap-4"
-            onMouseEnter={() => setActiveNode("corporate")}
-            onMouseLeave={() => setActiveNode(null)}
+            onMouseEnter={() => { setActiveNode("corporate"); setIsHovered(true); }}
+            onMouseLeave={() => { setActiveNode(null); setIsHovered(false); }}
           >
             {/* The Circle */}
             <div
               className="relative cursor-pointer group"
               style={{
-                width: activeNode === "corporate" ? "120px" : "110px",
-                height: activeNode === "corporate" ? "120px" : "110px",
+                width: activeNode === "corporate" ? "140px" : "130px",
+                height: activeNode === "corporate" ? "140px" : "130px",
                 transition: "all 350ms cubic-bezier(0.23, 1, 0.32, 1)",
               }}
             >
@@ -351,7 +418,7 @@ export default function HeroOverlays({
               <div
                 className="p-4 sm:p-5 rounded-2xl min-w-[240px] sm:min-w-[280px]"
                 style={{
-                  background: "rgba(255,255,255,0.42)",
+                  background: "rgba(255,255,255,0.85)",
                   backdropFilter: "blur(12px)",
                   border: "1px solid rgba(255,255,255,0.55)",
                   boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
@@ -369,19 +436,31 @@ export default function HeroOverlays({
 
       {/* 4. OUR OFFERINGS (Phase 4) */}
       <div
-        className="absolute inset-0 flex items-center justify-end p-6 sm:p-12 lg:p-16 transition-all duration-300 pointer-events-none"
+        className="absolute inset-0 transition-all duration-300 pointer-events-none"
         style={{
           opacity: offeringsOpacity,
           visibility: offeringsOpacity > 0.01 ? "visible" : "hidden",
           transform: `translateY(${(0.77 - scrollProgress) * 60}px)`,
         }}
       >
-        <div className="max-w-lg pointer-events-auto flex flex-col gap-5">
-          <div className="mb-2 text-right">
+        {/* Heading — Top Center */}
+        <div className="absolute top-6 sm:top-12 lg:top-16 left-0 right-0 text-center flex justify-center z-10">
+          <div 
+            className="inline-block px-6 py-3 rounded-2xl"
+            style={{
+              background: "rgba(255,255,255,0.85)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.55)",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.05)",
+            }}
+          >
             <span className="text-teal-600 font-semibold tracking-wider uppercase text-xs sm:text-sm mb-1 block">Services</span>
             <h2 className="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight">Our Offerings</h2>
           </div>
-          
+        </div>
+
+        {/* HRV StressCheck — LEFT */}
+        <div className="absolute left-0 top-[50%] -translate-y-1/2 pl-6 sm:pl-12 lg:pl-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
           {/* Card 1 */}
           <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-4 relative overflow-hidden group cursor-default hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
             <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
@@ -400,7 +479,10 @@ export default function HeroOverlays({
               Know More &rarr;
             </Link>
           </div>
+        </div>
 
+        {/* QEEG Brain Mapping — RIGHT */}
+        <div className="absolute right-0 top-[50%] -translate-y-1/2 pr-6 sm:pr-12 lg:pr-16 w-full sm:w-[48%] lg:w-[42%] max-w-lg pointer-events-auto">
           {/* Card 2 */}
           <div className="p-6 sm:p-7 rounded-3xl border border-white/80 bg-white/85 backdrop-blur-xl shadow-xl shadow-slate-200/40 flex flex-col gap-4 relative overflow-hidden group cursor-default hover:-translate-y-1 hover:shadow-2xl hover:shadow-teal-900/5 transition-all duration-300">
             <div className="absolute -top-6 -right-6 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
@@ -424,29 +506,19 @@ export default function HeroOverlays({
 
       {/* 5. SEQUENCE COMPLETED (Phase 5) */}
       <div
-        className="w-full h-full flex flex-col items-center justify-center text-center absolute inset-0 transition-all duration-300 pointer-events-none"
+        className="w-full h-full flex flex-col items-center justify-end pb-16 sm:pb-24 text-center absolute inset-0 transition-all duration-300 pointer-events-none z-30"
         style={{
           opacity: completeOpacity,
           visibility: completeOpacity > 0.01 ? "visible" : "hidden",
         }}
       >
-        <div className="px-7 py-6 rounded-3xl max-w-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-white/60 pointer-events-auto bg-white/55 backdrop-blur-md">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-700 text-xs font-semibold mb-2.5">
-            <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-            <span>Tour Complete</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight mb-1.5">
-            Ready to Explore the Platform?
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-600 mb-5 leading-relaxed">
-            Scroll down or click below to discover clinical assessment workflows.
-          </p>
+        <div className="p-2.5 rounded-full border border-white/60 pointer-events-auto bg-white/40 backdrop-blur-xl shadow-2xl">
           <button
-            onClick={onExploreClick}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-teal-600 text-white font-medium text-xs sm:text-sm hover:bg-teal-700 transition-all duration-200 shadow-lg shadow-teal-600/30 hover:-translate-y-0.5 cursor-pointer"
+            onClick={onBookClick}
+            className="inline-flex items-center gap-3 px-10 py-5 rounded-full bg-gradient-to-r from-slate-900 to-slate-800 text-white font-extrabold text-lg sm:text-xl transition-all duration-300 hover:from-teal-700 hover:to-teal-900 shadow-lg hover:shadow-[0_0_40px_rgba(13,148,136,0.6)] hover:scale-105 cursor-pointer"
           >
-            <span>Proceed to What We Do</span>
-            <ArrowDown className="w-4 h-4 animate-bounce" />
+            <Sparkles className="w-6 h-6 text-teal-300" />
+            <span className="tracking-wide">Book Assessment</span>
           </button>
         </div>
       </div>
