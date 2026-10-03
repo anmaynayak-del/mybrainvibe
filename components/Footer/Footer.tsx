@@ -1,9 +1,14 @@
 "use client";
 
 import React from "react";
-import { Brain, ArrowUp } from "lucide-react";
+import { ArrowUp } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useBooking } from "@/components/BookingProvider";
 
 export default function Footer() {
+  const { openBooking } = useBooking();
+  
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -15,12 +20,15 @@ export default function Footer() {
           {/* Brand Col */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-teal-500 flex items-center justify-center text-slate-950">
-                <Brain className="w-4 h-4 stroke-[2.4]" />
+              <div className="inline-flex">
+                <Image 
+                  src="/logo.png" 
+                  alt="BrainVibe"
+                  width={160}
+                  height={48} 
+                  className="h-10 sm:h-12 w-auto object-contain brightness-[1.3] drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]"
+                />
               </div>
-              <span className="text-lg font-bold tracking-tight text-white font-sans">
-                BRAIN<span className="text-teal-400">VIBE</span>
-              </span>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
               MyBrainVibe brings science-backed, non-invasive stress and brain health assessments to everyday healthcare. Powered by 22Neuro experts in collaboration with premier research institutions.
@@ -37,29 +45,34 @@ export default function Footer() {
             </h5>
             <ul className="space-y-2">
               <li>
-                <a href="#what-we-do" className="hover:text-teal-400 transition-colors">
-                  What We Do
-                </a>
-              </li>
-              <li>
-                <a href="#who-we-serve" className="hover:text-teal-400 transition-colors">
+                <Link href="/who-we-serve" className="hover:text-teal-400 transition-colors">
                   Who We Serve
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#technology" className="hover:text-teal-400 transition-colors">
+                <Link href="/technology" className="hover:text-teal-400 transition-colors">
                   Technology &amp; Waves
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#clinical-insights" className="hover:text-teal-400 transition-colors">
+                <Link href="/clinical-ai" className="hover:text-teal-400 transition-colors">
                   Clinical Insights
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#contact" className="hover:text-teal-400 transition-colors">
+                <Link href="/about" className="hover:text-teal-400 transition-colors">
+                  About Us
+                </Link>
+              </li>
+              <li>
+                <Link href="/contact" className="hover:text-teal-400 transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <button onClick={openBooking} className="hover:text-teal-400 transition-colors text-left">
                   Book Assessment
-                </a>
+                </button>
               </li>
             </ul>
           </div>
@@ -71,19 +84,14 @@ export default function Footer() {
             </h5>
             <ul className="space-y-2">
               <li>
-                <span className="text-slate-400">QEEG Brain Mapping</span>
+                <Link href="/services/qeeg-brain-assessment" className="text-slate-400 hover:text-teal-400 transition-colors">
+                  QEEG Brain Mapping
+                </Link>
               </li>
               <li>
-                <span className="text-slate-400">HRV StressCheck</span>
-              </li>
-              <li>
-                <span className="text-slate-400">School Neuro Program</span>
-              </li>
-              <li>
-                <span className="text-slate-400">Corporate Resilience</span>
-              </li>
-              <li>
-                <span className="text-slate-400">Clinical Decision Support</span>
+                <Link href="/services/hrv-stresscheck" className="text-slate-400 hover:text-teal-400 transition-colors">
+                  HRV StressCheck
+                </Link>
               </li>
             </ul>
           </div>

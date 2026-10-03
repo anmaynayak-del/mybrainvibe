@@ -9,20 +9,11 @@ import Image from "next/image";
 import { useBooking } from "@/components/BookingProvider";
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   const { openBooking } = useBooking();
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 100);
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   // Close on route change
   useEffect(() => {
@@ -62,9 +53,15 @@ export default function Navbar() {
     { name: "Contact", href: "/contact" },
   ];
 
+  const isTransparentRoute = pathname === "/" || pathname === "/services/hrv-stresscheck" || pathname === "/services/qeeg-brain-assessment";
+
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-transparent py-4"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 py-4 ${
+        isTransparentRoute 
+          ? "bg-transparent" 
+          : "bg-white/65 backdrop-blur-lg border-b border-slate-200/40 shadow-sm"
+      }`}
     >
       <div suppressHydrationWarning className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between relative z-[60]">
         {/* Brand Logo */}
@@ -89,7 +86,7 @@ export default function Navbar() {
                   <Link
                     href={link.href}
                     onClick={(e) => link.href === "#" && e.preventDefault()}
-                    className={`px-4 py-1.5 rounded-full transition-all duration-200 font-medium text-xs lg:text-sm inline-flex items-center gap-1 ${
+                    className={`px-4 py-1.5 rounded-full transition-all duration-200 font-semibold text-xs lg:text-sm inline-flex items-center gap-1 ${
                       isActive
                         ? "bg-white text-teal-600 shadow-xs"
                         : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
@@ -103,7 +100,7 @@ export default function Navbar() {
                       <Link
                         key={subItem.name}
                         href={subItem.href}
-                        className="block px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
+                        className="block px-4 py-2.5 text-sm font-semibold text-slate-600 hover:text-teal-700 hover:bg-teal-50 rounded-lg transition-colors"
                       >
                         {subItem.name}
                       </Link>
@@ -117,7 +114,7 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`px-4 py-1.5 rounded-full transition-all duration-200 font-medium text-xs lg:text-sm ${
+                className={`px-4 py-1.5 rounded-full transition-all duration-200 font-semibold text-xs lg:text-sm ${
                   isActive
                     ? "bg-white text-teal-600 shadow-xs"
                     : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
@@ -133,10 +130,10 @@ export default function Navbar() {
         <div className="hidden sm:flex max-lg:hidden items-center gap-3">
           <button
             onClick={openBooking}
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-semibold bg-teal-600 text-white hover:bg-teal-700 transition-all duration-200 shadow-sm shadow-teal-600/25 hover:shadow-md hover:shadow-teal-600/35 hover:-translate-y-0.5 active:translate-y-0"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-teal-600 text-white hover:bg-teal-700 transition-all duration-200 shadow-sm shadow-teal-600/25 hover:shadow-md hover:shadow-teal-600/35 hover:-translate-y-0.5 active:translate-y-0"
           >
             <span>Book Assessment</span>
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
@@ -179,7 +176,7 @@ export default function Navbar() {
                       <Link
                         key={subItem.name}
                         href={subItem.href}
-                        className="px-4 py-3 text-base font-medium text-slate-600 hover:text-teal-700 hover:bg-teal-50 rounded-xl transition-colors min-h-[44px] flex items-center"
+                        className="px-4 py-3 text-base font-semibold text-slate-600 hover:text-teal-700 hover:bg-teal-50 rounded-xl transition-colors min-h-[44px] flex items-center"
                       >
                         {subItem.name}
                       </Link>
@@ -193,7 +190,7 @@ export default function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={`px-4 py-3 text-base font-medium rounded-xl transition-colors min-h-[44px] flex items-center ${
+                className={`px-4 py-3 text-base font-semibold rounded-xl transition-colors min-h-[44px] flex items-center ${
                   isActive
                     ? "text-teal-600 bg-teal-50 font-bold"
                     : "text-slate-700 hover:text-teal-600 hover:bg-slate-50"
